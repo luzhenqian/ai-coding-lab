@@ -2,6 +2,9 @@
 local-docs/
 CLAUDE.local.md
 
+# Git backup
+.git-bak/
+
 # OS
 .DS_Store
 
