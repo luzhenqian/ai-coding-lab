@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noah - Personal Page</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+  <div class="scanline"></div>
+
+  <div class="container">
+    <div class="profile">
+      <div class="avatar-ring">
+        <div class="avatar">N</div>
+      </div>
+      <h1 class="name">Noah</h1>
+      <p class="bio">AI 编程爱好者 / 终身学习者</p>
+    </div>
+
+    <div class="links">
+      <a href="https://github.com/luzhenqian" target="_blank" class="link-card" style="--i:0">
+        <i class="fa-brands fa-github link-icon"></i>
+        <span class="link-text">GitHub</span>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="https://x.com/web3noahlu" target="_blank" class="link-card" style="--i:1">
+        <i class="fa-brands fa-x-twitter link-icon"></i>
+        <span class="link-text">Twitter / X</span>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="https://www.youtube.com/@web3noah" target="_blank" class="link-card" style="--i:2">
+        <i class="fa-brands fa-youtube link-icon"></i>
+        <span class="link-text">YouTube</span>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="https://space.bilibili.com/1750326048" target="_blank" class="link-card" style="--i:3">
+        <i class="fa-brands fa-bilibili link-icon"></i>
+        <span class="link-text">Bilibili</span>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="mailto:luzhenqian98@gmail.com" class="link-card" style="--i:4">
+        <i class="fa-solid fa-envelope link-icon"></i>
+        <span class="link-text">Email</span>
+        <span class="link-arrow">→</span>
+      </a>
+
+      <button class="link-card wechat-btn" onclick="copyWechat()" style="--i:5">
+        <i class="fa-brands fa-weixin link-icon"></i>
+        <span class="link-text">复制微信号</span>
+        <span class="link-arrow">⎘</span>
+      </button>
+    </div>
+
+    <div class="toast" id="toast">✓ 已复制到剪贴板</div>
+
+    <footer class="footer">
+      <div class="footer-line"></div>
+      <p>Made with AI</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

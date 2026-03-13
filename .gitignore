@@ -1,0 +1,13 @@
+# Local files - not for remote
+local-docs/
+CLAUDE.local.md
+
+# OS
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Environment
+.env*
+!.env.example
