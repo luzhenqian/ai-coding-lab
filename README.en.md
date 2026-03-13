@@ -17,7 +17,7 @@ Describe what you want in plain language and let AI generate the code. Perfect f
 | # | Project | Difficulty | What You'll Build |
 |---|---------|-----------|-------------------|
 | 1 | [Bio Link Page](./vibe-coding/bio-link-page/) | ⭐ Beginner | A Linktree-style personal page, done in 10 minutes |
-| 2 | Employee Handbook Q&A Bot (coming soon) | ⭐⭐⭐ Intermediate | A RAG chatbot that answers questions from uploaded PDFs |
+| 2 | [Employee Handbook Q&A Bot](./vibe-coding/ask-book/) | ⭐⭐⭐ Intermediate | A RAG chatbot that answers questions from uploaded PDFs |
 
 ## Who Is This For
 
