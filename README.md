@@ -54,9 +54,7 @@ AI Agent 实战项目。
 
 | 工具 | 说明 | 适合场景 |
 |------|------|---------|
-| [Lovable](https://lovable.dev) | 在线 AI 建站 | 零基础，快速出页面 |
-| [Cursor](https://cursor.com) | AI 代码编辑器 | 有一定基础，做完整项目 |
-| [Claude Code](https://claude.ai/claude-code) | AI 命令行编程助手 | 有开发经验，高效协作 |
+| [Claude Code](https://claude.ai/claude-code) | AI 命令行编程助手 | 全场景适用，高效协作 |
 
 ## 许可证
 

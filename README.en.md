@@ -54,9 +54,7 @@ Each project is self-contained. No need to go in order.
 
 | Tool | Description | Best For |
 |------|-------------|----------|
-| [Lovable](https://lovable.dev) | Online AI website builder | Zero experience, quick pages |
-| [Cursor](https://cursor.com) | AI code editor | Some experience, full projects |
-| [Claude Code](https://claude.ai/claude-code) | AI CLI programming assistant | Experienced devs, efficient collaboration |
+| [Claude Code](https://claude.ai/claude-code) | AI CLI programming assistant | All scenarios, efficient collaboration |
 
 ## License
 
