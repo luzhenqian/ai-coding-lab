@@ -17,6 +17,8 @@ Describe what you want in plain language and let AI generate the code. Perfect f
 | # | Project | Difficulty | What You'll Build |
 |---|---------|-----------|-------------------|
 | 1 | [Bio Link Page](./vibe-coding/bio-link-page/) | ⭐ Beginner | A Linktree-style personal page, done in 10 minutes |
+| 2 | [Personal Blog](./vibe-coding/nextjs-blog/) | ⭐⭐ Easy | A full-stack blog with article management, categories, tags, and comments |
+| 3 | [Personal Blog (Comments)](./vibe-coding/nextjs-blog-comment/) | ⭐⭐ Easy | Extended blog with nested comment replies |
 
 ### RAG
 
