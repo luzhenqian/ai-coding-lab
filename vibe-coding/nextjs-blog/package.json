@@ -1,0 +1,51 @@
+{
+  "name": "nextjs-blog",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "test": "vitest"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.11.1",
+    "@prisma/client": "^6.19.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "bcryptjs": "^3.0.3",
+    "next": "^16.1.6",
+    "next-auth": "^5.0.0-beta.30",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "resend": "^6.9.3",
+    "slugify": "^1.6.8",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@uiw/react-md-editor": "^4.0.11",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8.5.8",
+    "prettier": "^3.8.1",
+    "prisma": "^6.19.2",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
