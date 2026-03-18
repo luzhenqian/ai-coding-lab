@@ -130,11 +130,9 @@ export function useWorkflow(options?: UseWorkflowOptions) {
     setSteps(appSteps)
     setPhase('streaming')
     try {
-      const resumeRes = await postJSON('/api/workflow/resume', { runId, approved: true })
-      if (!resumeRes.ok) {
-        const data = await resumeRes.json()
-        throw new Error(data.error || '恢复流程失败')
-      }
+      // 并行：resume workflow（后台）+ 流式生成报告（前台）
+      // report API 独立于 workflow，不需要等 resume 完成
+      const resumePromise = postJSON('/api/workflow/resume', { runId, approved: true })
       let finalReport = ''
       if (repoInfo && repoTree) {
         const reportRes = await postJSON('/api/workflow/report', { repoInfo, repoTree })
@@ -148,6 +146,8 @@ export function useWorkflow(options?: UseWorkflowOptions) {
           setReport(finalReport)
         }
       }
+      // 确保 resume 也完成（忽略其结果，报告已独立生成）
+      await resumePromise.catch(() => {})
       const doneSteps = appSteps.map((s) =>
         s.id === 'generate-report' ? { ...s, status: 'success' as StepStatus } : s
       )
