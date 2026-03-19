@@ -1,8 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, FileUp, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Document {
   id: string;
@@ -12,16 +23,27 @@ interface Document {
   createdAt: string;
 }
 
+const ACCEPTED_EXTENSIONS = [".txt", ".md", ".pdf", ".doc", ".docx"];
+const ACCEPT_STRING = ACCEPTED_EXTENSIONS.join(",");
+
+function isAcceptedFile(file: File): boolean {
+  const name = file.name.toLowerCase();
+  return ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
+}
+
 /**
  * T067: 文档管理页面
- * - 上传 .txt/.md/.pdf/.doc/.docx 文档
+ * - 拖拽或点击上传 .txt/.md/.pdf/.doc/.docx 文档
  * - 查看文档列表（状态、分块数、创建时间）
- * - 删除文档
+ * - 删除文档（带二次确认）
+ * - 处理中文档自动刷新显示分块数
  */
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchDocuments = useCallback(async () => {
     try {
@@ -41,12 +63,23 @@ export default function DocumentsPage() {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fileInput = form.elements.namedItem("file") as HTMLInputElement;
-    const file = fileInput?.files?.[0];
-    if (!file) return;
+  // Poll for processing documents to update chunk count
+  useEffect(() => {
+    const hasProcessing = documents.some((doc) => doc.status === "processing");
+    if (!hasProcessing) return;
+
+    const interval = setInterval(() => {
+      fetchDocuments();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [documents, fetchDocuments]);
+
+  const uploadFile = async (file: File) => {
+    if (!isAcceptedFile(file)) {
+      alert(`不支持的文件类型。请上传 ${ACCEPTED_EXTENSIONS.join("、")} 格式的文件。`);
+      return;
+    }
 
     setUploading(true);
     try {
@@ -57,7 +90,6 @@ export default function DocumentsPage() {
         body: formData,
       });
       if (res.ok) {
-        form.reset();
         await fetchDocuments();
       }
     } catch (error) {
@@ -65,6 +97,30 @@ export default function DocumentsPage() {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) uploadFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+    // Reset input so the same file can be selected again
+    e.target.value = "";
   };
 
   const handleDelete = async (id: string) => {
@@ -98,6 +154,25 @@ export default function DocumentsPage() {
     );
   };
 
+  const chunkDisplay = (doc: Document) => {
+    if (doc.status === "processing") {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+          <Loader2 size={12} className="animate-spin" />
+          处理中…
+        </span>
+      );
+    }
+    if (doc.status === "error") {
+      return <span className="text-xs text-muted-foreground">—</span>;
+    }
+    return (
+      <span className="text-xs text-muted-foreground">
+        {doc.chunkCount} 个分块
+      </span>
+    );
+  };
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       {/* Header */}
@@ -111,23 +186,45 @@ export default function DocumentsPage() {
         <h1 className="mt-1 text-xl font-semibold">文档管理</h1>
       </div>
 
-      {/* Upload form */}
-      <form onSubmit={handleUpload} className="mb-6 flex items-center gap-3">
+      {/* Drag-and-drop upload zone */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onClick={() => fileInputRef.current?.click()}
+        className={`mb-6 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-6 py-8 transition-colors ${
+          dragOver
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-muted-foreground/25 text-muted-foreground hover:border-muted-foreground/50"
+        } ${uploading ? "pointer-events-none opacity-50" : ""}`}
+      >
         <input
+          ref={fileInputRef}
           type="file"
-          name="file"
-          accept=".txt,.md,.pdf,.doc,.docx"
-          className="text-sm file:mr-2 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:text-primary-foreground hover:file:bg-primary/90"
+          accept={ACCEPT_STRING}
+          onChange={handleFileSelect}
+          className="hidden"
         />
-        <button
-          type="submit"
-          disabled={uploading}
-          className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        >
-          <Upload size={14} />
-          {uploading ? "上传中..." : "上传"}
-        </button>
-      </form>
+        {uploading ? (
+          <>
+            <Loader2 size={28} className="animate-spin" />
+            <span className="text-sm">上传中…</span>
+          </>
+        ) : dragOver ? (
+          <>
+            <FileUp size={28} />
+            <span className="text-sm">释放文件以上传</span>
+          </>
+        ) : (
+          <>
+            <Upload size={28} />
+            <span className="text-sm">拖拽文件到此处，或点击选择文件</span>
+            <span className="text-xs text-muted-foreground/60">
+              支持 .txt、.md、.pdf、.doc、.docx
+            </span>
+          </>
+        )}
+      </div>
 
       {/* Document list */}
       {loading ? (
@@ -147,17 +244,39 @@ export default function DocumentsPage() {
                   {statusBadge(doc.status)}
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {doc.chunkCount} 个分块 &middot;{" "}
+                  {chunkDisplay(doc)} &middot;{" "}
                   {new Date(doc.createdAt).toLocaleString("zh-CN")}
                 </span>
               </div>
-              <button
-                onClick={() => handleDelete(doc.id)}
-                className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                aria-label="删除文档"
-              >
-                <Trash2 size={16} />
-              </button>
+              <AlertDialog>
+                <AlertDialogTrigger
+                  render={
+                    <button
+                      className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      aria-label="删除文档"
+                    />
+                  }
+                >
+                  <Trash2 size={16} />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>确定要删除这个文档吗？</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      删除后无法恢复，文档及其所有分块数据将被永久删除。
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>取消</AlertDialogCancel>
+                    <AlertDialogAction
+                      variant="destructive"
+                      onClick={() => handleDelete(doc.id)}
+                    >
+                      确认删除
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </li>
           ))}
         </ul>

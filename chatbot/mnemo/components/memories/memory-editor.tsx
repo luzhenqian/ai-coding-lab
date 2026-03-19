@@ -64,19 +64,29 @@ export function MemoryEditor({ memory, onSave, onCancel }: MemoryEditorProps) {
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="memory-category" className="text-xs text-muted-foreground">
+        <label className="text-xs text-muted-foreground">
           分类
         </label>
-        <select
-          id="memory-category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="preference">偏好</option>
-          <option value="fact">事实</option>
-          <option value="behavior">行为</option>
-        </select>
+        <div className="flex gap-1.5">
+          {[
+            { value: "preference", label: "偏好", style: "bg-blue-100 text-blue-800 ring-blue-300" },
+            { value: "fact", label: "事实", style: "bg-green-100 text-green-800 ring-green-300" },
+            { value: "behavior", label: "行为", style: "bg-purple-100 text-purple-800 ring-purple-300" },
+          ].map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setCategory(opt.value)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
+                category === opt.value
+                  ? `${opt.style} ring-2`
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-end gap-2">

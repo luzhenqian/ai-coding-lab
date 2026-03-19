@@ -1,6 +1,17 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Memory {
   id: string;
@@ -105,13 +116,35 @@ export function MemoryList({ memories, onDelete, onEdit }: MemoryListProps) {
                   >
                     <Pencil size={14} />
                   </button>
-                  <button
-                    onClick={() => onDelete(memory.id)}
-                    className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    title="删除"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      render={
+                        <button
+                          className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          title="删除"
+                        />
+                      }
+                    >
+                      <Trash2 size={14} />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>确定要删除这条记忆吗？</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          删除后无法恢复，该记忆将被永久删除。
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>取消</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          onClick={() => onDelete(memory.id)}
+                        >
+                          确认删除
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </td>
             </tr>
