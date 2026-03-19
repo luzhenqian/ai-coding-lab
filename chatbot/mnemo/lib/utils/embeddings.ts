@@ -1,9 +1,8 @@
 import { embed } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 
-// Why: separate OpenAI provider instance for embeddings since
-// the main chat uses Anthropic. baseURL is configurable for
-// third-party API proxies.
+// 原因：为嵌入使用单独的 OpenAI 提供商实例，因为主聊天使用 Anthropic。
+// baseURL 可配置，以支持第三方 API 代理。
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
   baseURL: process.env.OPENAI_BASE_URL,
@@ -15,8 +14,8 @@ const embeddingModelId =
 const embeddingModel = openai.embedding(embeddingModelId);
 
 /**
- * Generate a 1536-dimensional embedding vector for the given text.
- * Used for both storing memories and querying similar ones.
+ * 为给定文本生成 1536 维嵌入向量。
+ * 用于存储记忆和查询相似记忆。
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {

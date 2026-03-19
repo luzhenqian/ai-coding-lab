@@ -5,7 +5,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-/** Soft-delete a conversation by ID. */
+/** 根据 ID 软删除对话。 */
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;

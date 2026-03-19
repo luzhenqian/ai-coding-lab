@@ -10,11 +10,11 @@ import { extractText } from "@/lib/utils/text-extractor";
 import { DEFAULT_USER_ID } from "@/lib/constants";
 
 const SUPPORTED_EXTENSIONS = new Set(["txt", "md", "pdf", "doc", "docx"]);
-// Why: plain text formats can be validated for empty content before creating
-// the document record; binary formats need extraction first (done in after())
+// 原因：纯文本格式可以在创建文档记录前验证内容是否为空；
+// 二进制格式需要先提取文本（在 after() 中完成）
 const PLAIN_TEXT_EXTENSIONS = new Set(["txt", "md"]);
 
-/** GET /api/documents — list all documents for the current user. */
+/** GET /api/documents — 列出当前用户的所有文档。 */
 export async function GET() {
   try {
     const docs = await listDocumentsByUser(DEFAULT_USER_ID);
@@ -29,11 +29,11 @@ export async function GET() {
 }
 
 /**
- * POST /api/documents — upload a document (.txt, .md, .pdf, .doc, .docx).
+ * POST /api/documents — 上传文档（.txt、.md、.pdf、.doc、.docx）。
  *
- * Why: we create the document record immediately and return it
- * in 'processing' state, then use after() to chunk and embed
- * asynchronously so the user doesn't wait for embedding generation.
+ * 原因：我们立即创建文档记录并以 'processing' 状态返回，
+ * 然后使用 after() 异步执行分块和嵌入生成，
+ * 这样用户无需等待嵌入生成完成。
  */
 export async function POST(request: NextRequest) {
   try {
@@ -47,8 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Why: reject oversized files early to avoid memory pressure
-    // during text extraction and embedding generation (10 MB limit)
+    // 原因：尽早拒绝过大的文件，避免在文本提取和嵌入生成过程中造成内存压力（10 MB 限制）
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
@@ -66,9 +65,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Why: for plain text formats we can cheaply validate content before
-    // creating a DB record; binary formats need library extraction so we
-    // defer that to the after() block to keep the response fast
+    // 原因：对于纯文本格式，我们可以低成本地在创建数据库记录前验证内容；
+    // 二进制格式需要依赖库提取文本，所以我们将其推迟到 after() 中以保持响应速度
     if (PLAIN_TEXT_EXTENSIONS.has(ext)) {
       const text = await file.text();
       if (!text.trim()) {
@@ -90,8 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(document, { status: 201 });
     }
 
-    // Why: binary formats (PDF, DOC, DOCX) — create record first, then
-    // extract text + process in the background via after()
+    // 原因：二进制格式（PDF、DOC、DOCX）— 先创建记录，然后通过 after() 在后台提取文本并处理
     const fileBuffer = await file.arrayBuffer();
     const document = await createDocument({
       userId: DEFAULT_USER_ID,
@@ -100,8 +97,7 @@ export async function POST(request: NextRequest) {
 
     after(async () => {
       try {
-        // Why: reconstruct a File from the buffer because extractText()
-        // expects a File object with a .name property for extension dispatch
+        // 原因：从 buffer 重新构造 File，因为 extractText() 需要带有 .name 属性的 File 对象来分派文件类型
         const reconstructed = new File([fileBuffer], filename);
         const text = await extractText(reconstructed);
         if (!text.trim()) {

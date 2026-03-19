@@ -16,9 +16,8 @@ interface CreateChunkData {
 }
 
 /**
- * Insert a new document record in 'processing' state.
- * Why: we create the record immediately (before chunking/embedding) so the
- * UI can show the document with a "processing" indicator right away.
+ * 以 'processing' 状态插入新文档记录。
+ * 原因：在分块/嵌入之前立即创建记录，这样 UI 可以马上显示带有"处理中"指示器的文档。
  */
 export async function createDocument(data: CreateDocumentData) {
   const [document] = await db
@@ -28,7 +27,7 @@ export async function createDocument(data: CreateDocumentData) {
   return document;
 }
 
-/** List all documents for a user, newest first. */
+/** 列出用户的所有文档，按最新排序。 */
 export async function listDocumentsByUser(userId: string) {
   return db
     .select()
@@ -37,12 +36,12 @@ export async function listDocumentsByUser(userId: string) {
     .orderBy(desc(documents.createdAt));
 }
 
-/** Delete a document by id (cascade deletes its chunks). */
+/** 按 ID 删除文档（级联删除其分块）。 */
 export async function deleteDocument(id: string) {
   await db.delete(documents).where(eq(documents.id, id));
 }
 
-/** Update document status and optionally the total chunk count. */
+/** 更新文档状态，可选更新总分块数。 */
 export async function updateDocumentStatus(
   id: string,
   status: "processing" | "ready" | "error",
@@ -56,21 +55,19 @@ export async function updateDocumentStatus(
 }
 
 /**
- * Batch insert document chunks.
- * Why: inserting all chunks in a single statement is significantly faster
- * than individual inserts, especially for large documents with many chunks.
+ * 批量插入文档分块。
+ * 原因：在单条语句中插入所有分块比逐条插入快得多，尤其是对于分块较多的大文档。
  */
 export async function batchCreateChunks(chunks: CreateChunkData[]) {
-  // Why: guard against empty array to avoid a Drizzle error on empty VALUES
+  // 原因：防止空数组导致 Drizzle 在空 VALUES 上报错
   if (chunks.length === 0) return;
   await db.insert(documentChunks).values(chunks);
 }
 
 /**
- * Search all document chunks by cosine similarity to the query embedding.
- * Why: uses pgvector cosine distance operator (<=>) to find the most
- * relevant chunks across all uploaded documents, joined with the
- * documents table to include the source filename.
+ * 通过余弦相似度搜索所有文档分块。
+ * 原因：使用 pgvector 余弦距离运算符（<=>）在所有已上传文档中查找最相关的分块，
+ * 并关联 documents 表以包含源文件名。
  */
 export async function searchChunksBySimilarity(
   queryEmbedding: number[],

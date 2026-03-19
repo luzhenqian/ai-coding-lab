@@ -12,9 +12,8 @@ import {
   customType,
 } from "drizzle-orm/pg-core";
 
-// Why: pgvector stores embeddings as a custom type not natively
-// supported by drizzle-orm, so we define a custom column type
-// that handles serialization to/from the wire format.
+// 原因：pgvector 将嵌入向量存储为 drizzle-orm 原生不支持的自定义类型，
+// 因此我们定义一个自定义列类型来处理与传输格式之间的序列化/反序列化。
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
     return "vector(1024)";
@@ -28,7 +27,7 @@ const vector = customType<{ data: number[]; driverData: string }>({
 });
 
 // ============================================================
-// Phase 1: Conversations & Messages
+// 第1阶段：对话与消息
 // ============================================================
 
 export const messageRoleEnum = pgEnum("message_role", [
@@ -61,10 +60,9 @@ export const conversations = pgTable(
 );
 
 // ============================================================
-// Phase 2: Conversation Summaries
-// Why: when a conversation exceeds the sliding window, we
-// generate a progressive summary so older context is preserved
-// without consuming the full token budget.
+// 第2阶段：对话摘要
+// 原因：当对话超出滑动窗口时，我们生成渐进式摘要，
+// 在不消耗全部 token 预算的情况下保留较早的上下文。
 // ============================================================
 
 export const summaries = pgTable(
@@ -112,10 +110,9 @@ export const messages = pgTable(
 );
 
 // ============================================================
-// Phase 3: Long-term User Memory
-// Why: cross-session memory lets the chatbot remember user
-// preferences, facts, and behaviors across conversations.
-// Embeddings enable semantic similarity search via pgvector.
+// 第3阶段：长期用户记忆
+// 原因：跨会话记忆让聊天机器人能够跨对话记住用户的偏好、事实和行为。
+// 嵌入向量通过 pgvector 实现语义相似度搜索。
 // ============================================================
 
 export const memoryCategoryEnum = pgEnum("memory_category", [
@@ -145,15 +142,15 @@ export const memories = pgTable(
   (table) => [index("memories_user_idx").on(table.userId)]
 );
 
-// Note: HNSW index for vector similarity search must be created
-// via raw SQL migration, not in the Drizzle schema definition:
+// 注意：向量相似度搜索的 HNSW 索引必须通过原始 SQL 迁移创建，
+// 而不是在 Drizzle schema 定义中创建：
 // CREATE INDEX memories_embedding_idx ON memories
 //   USING hnsw (embedding vector_cosine_ops);
 
 // ============================================================
-// Phase 4: Document Upload & RAG
-// Why: users can upload documents (.txt, .md) which are chunked,
-// embedded, and stored for retrieval-augmented generation.
+// 第4阶段：文档上传与 RAG
+// 原因：用户可以上传文档（.txt、.md），这些文档会被分块、
+// 嵌入并存储，用于检索增强生成。
 // ============================================================
 
 export const documentStatusEnum = pgEnum("document_status", [
@@ -193,7 +190,6 @@ export const documentChunks = pgTable(
   ]
 );
 
-// Note: HNSW index for document chunk embeddings must be created
-// via raw SQL migration:
+// 注意：文档分块嵌入的 HNSW 索引必须通过原始 SQL 迁移创建：
 // CREATE INDEX document_chunks_embedding_idx ON document_chunks
 //   USING hnsw (embedding vector_cosine_ops);

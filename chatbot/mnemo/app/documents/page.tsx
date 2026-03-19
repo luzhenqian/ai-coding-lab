@@ -63,7 +63,7 @@ export default function DocumentsPage() {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  // Poll for processing documents to update chunk count
+  // 轮询处理中的文档以更新分块数量
   useEffect(() => {
     const hasProcessing = documents.some((doc) => doc.status === "processing");
     if (!hasProcessing) return;
@@ -119,7 +119,7 @@ export default function DocumentsPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) uploadFile(file);
-    // Reset input so the same file can be selected again
+    // 重置 input 以便可以再次选择同一文件
     e.target.value = "";
   };
 
@@ -175,7 +175,7 @@ export default function DocumentsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Header */}
+      {/* 页面头部 */}
       <div className="mb-6">
         <Link
           href="/"
@@ -186,7 +186,7 @@ export default function DocumentsPage() {
         <h1 className="mt-1 text-xl font-semibold">文档管理</h1>
       </div>
 
-      {/* Drag-and-drop upload zone */}
+      {/* 拖拽上传区域 */}
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -226,7 +226,7 @@ export default function DocumentsPage() {
         )}
       </div>
 
-      {/* Document list */}
+      {/* 文档列表 */}
       {loading ? (
         <p className="py-8 text-center text-muted-foreground">加载中...</p>
       ) : documents.length === 0 ? (

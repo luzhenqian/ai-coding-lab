@@ -6,11 +6,10 @@ import {
 } from "@/lib/db/queries/documents";
 
 /**
- * Process an uploaded document: chunk, embed, and store.
+ * 处理上传的文档：分块、嵌入和存储。
  *
- * Why: this runs asynchronously (via next/server after()) so the
- * upload response returns immediately while heavy embedding work
- * happens in the background.
+ * 原因：此操作异步运行（通过 next/server after()），因此上传响应会立即返回，
+ * 而繁重的嵌入工作在后台进行。
  */
 export async function processDocument(
   documentId: string,
@@ -19,8 +18,7 @@ export async function processDocument(
   try {
     const chunks = chunkDocument(text);
 
-    // Why: batch embeddings in groups of 10 to avoid overwhelming
-    // the OpenAI API with too many concurrent requests
+    // 原因：以10个为一组批量处理嵌入，避免过多并发请求压垮 OpenAI API
     const BATCH_SIZE = 10;
     const embeddedChunks: Array<{
       documentId: string;

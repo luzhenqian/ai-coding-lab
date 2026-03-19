@@ -5,7 +5,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-/** List all messages for a conversation, ordered by creation time. */
+/** 列出对话的所有消息，按创建时间排序。 */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;

@@ -4,8 +4,8 @@ import { Bot } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 /**
- * Typing indicator: animated 3-dot bounce shown while waiting for AI response.
- * Styled as an assistant message bubble with avatar.
+ * 输入指示器：等待 AI 回复时显示的三点跳动动画。
+ * 样式与助手消息气泡一致，带头像。
  */
 export function TypingIndicator() {
   return (

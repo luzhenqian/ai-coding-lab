@@ -21,7 +21,7 @@ interface RetrievedChunk {
   filename: string;
 }
 
-// Why: matches the shape returned by GET /api/conversations/[id]/debug
+// 原因：匹配 GET /api/conversations/[id]/debug 返回的数据结构
 interface DebugData {
   summary: {
     content: string;
@@ -46,7 +46,7 @@ const IS_PRODUCTION = process.env.NODE_ENV === "production";
 const STORAGE_KEY = "debug-panel-height";
 const DEFAULT_HEIGHT = 300;
 const MIN_HEIGHT = 120;
-// Why: max height is computed dynamically as 80% of viewport in the drag handler
+// 原因：最大高度在拖拽处理器中动态计算为视口的 80%
 
 function getInitialHeight(): number {
   if (typeof window === "undefined") return DEFAULT_HEIGHT;
@@ -59,8 +59,8 @@ function getInitialHeight(): number {
 }
 
 /**
- * Inline markdown renderer for debug panel content.
- * Reuses the same Streamdown + @streamdown/code stack as message-bubble.
+ * 调试面板内容的内联 Markdown 渲染器。
+ * 复用与 message-bubble 相同的 Streamdown + @streamdown/code 技术栈。
  */
 function DebugMarkdown({ children }: { children: string }) {
   return (
@@ -79,7 +79,7 @@ function DebugMarkdown({ children }: { children: string }) {
 const TRUNCATE_LENGTH = 100;
 
 /**
- * Shows truncated text with a clickable "..." to expand full markdown content.
+ * 显示截断文本，点击"..."可展开完整的 Markdown 内容。
  */
 function CollapsibleChunk({ content }: { content: string }) {
   const [expanded, setExpanded] = useState(false);
@@ -122,12 +122,12 @@ export function DebugPanel({ conversationId, refreshKey }: DebugPanelProps) {
   const [loading, setLoading] = useState(false);
   const [height, setHeight] = useState(getInitialHeight);
 
-  // Why: refs for drag state to avoid re-renders during pointer move
+  // 原因：使用 ref 存储拖拽状态，避免指针移动时触发重新渲染
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
 
-  // Persist height to sessionStorage
+  // 将高度持久化到 sessionStorage
   useEffect(() => {
     sessionStorage.setItem(STORAGE_KEY, String(height));
   }, [height]);
@@ -170,7 +170,7 @@ export function DebugPanel({ conversationId, refreshKey }: DebugPanelProps) {
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging.current) return;
-    // Why: dragging up (negative deltaY) should increase height
+    // 原因：向上拖拽（负 deltaY）应增大高度
     const deltaY = startY.current - e.clientY;
     const maxHeight = window.innerHeight * 0.8;
     const newHeight = Math.min(
@@ -190,7 +190,7 @@ export function DebugPanel({ conversationId, refreshKey }: DebugPanelProps) {
 
   return (
     <div className="border-t">
-      {/* Toggle trigger */}
+      {/* 切换触发器 */}
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="w-full px-4 py-1 text-left text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
@@ -200,7 +200,7 @@ export function DebugPanel({ conversationId, refreshKey }: DebugPanelProps) {
 
       {open && (
         <>
-          {/* Resize handle */}
+          {/* 调整大小手柄 */}
           <div
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -208,7 +208,7 @@ export function DebugPanel({ conversationId, refreshKey }: DebugPanelProps) {
             className="h-1.5 cursor-ns-resize bg-transparent hover:bg-muted-foreground/20 transition-colors border-t border-b border-transparent hover:border-muted-foreground/10"
           />
 
-          {/* Scrollable content area with controlled height */}
+          {/* 可滚动内容区域，高度受控 */}
           <div
             className="overflow-y-auto px-4 pb-2"
             style={{ height }}

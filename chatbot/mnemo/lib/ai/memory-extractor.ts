@@ -13,8 +13,8 @@ import {
 } from "@/lib/db/queries/memories";
 import { MEMORY_DEDUP_THRESHOLD } from "@/lib/constants";
 
-// Why: use a single item schema with output:"array" mode so the LLM
-// naturally returns an array without needing a wrapper object
+// 原因：使用单项 schema 配合 output:"array" 模式，让 LLM
+// 自然返回数组而无需包装对象
 const memoryItemSchema = z.object({
   content: z.string().describe("The memory content to store"),
   category: z
@@ -41,9 +41,8 @@ interface ExistingMemory {
 }
 
 /**
- * Extract user memories from recent messages using structured LLM output.
- * Why: periodically mining conversations for durable user facts enables
- * the chatbot to personalize responses across sessions.
+ * 使用结构化 LLM 输出从近期消息中提取用户记忆。
+ * 原因：定期从对话中挖掘持久的用户事实，使聊天机器人能够跨会话个性化回复。
  */
 export type ExtractionSource = "hot-path" | "background";
 
@@ -70,8 +69,7 @@ export async function extractMemories(
       existingMemoriesText
     ).replace("{recentMessages}", recentMessagesText);
 
-    // Why: use generateText + manual parse for compatibility with
-    // OpenAI-compatible models that don't support structured output
+    // 原因：使用 generateText + 手动解析，以兼容不支持结构化输出的 OpenAI 兼容模型
     const extractionResult = await generateText({
       model: chatModel,
       prompt: prompt + '\n\n请严格按照以下 JSON 数组格式回复，不要输出其他内容：\n[{"content": "记忆内容", "category": "preference|fact|behavior", "action": "ADD|UPDATE", "updateTargetId": "可选ID"}]',
@@ -79,7 +77,7 @@ export async function extractMemories(
 
     const rawExtraction = extractionResult.text.trim();
 
-    // Why: extract JSON array from response — model may wrap it in markdown
+    // 原因：从响应中提取 JSON 数组——模型可能会用 markdown 包裹它
     const arrayMatch = rawExtraction.match(/\[[\s\S]*\]/);
     if (!arrayMatch) {
       return;
@@ -90,24 +88,21 @@ export async function extractMemories(
 
     for (const extracted of memories) {
       try {
-        // Why: prepend a source tag so the debug panel can show
-        // whether this memory came from hot-path or background.
-        // The tag is stripped before embedding to avoid polluting
-        // similarity search.
+        // 原因：前置来源标签，让调试面板可以显示该记忆来自热路径还是后台。
+        // 标签在嵌入前会被去除，避免污染相似度搜索。
         const sourceTag = source ? `[${source}] ` : "";
         const taggedContent = `${sourceTag}${extracted.content}`;
         const embedding = await generateEmbedding(extracted.content);
 
         if (extracted.action === "UPDATE" && extracted.updateTargetId) {
-          // Why: re-embed updated content so similarity search stays accurate
+          // 原因：重新嵌入更新后的内容，以保持相似度搜索的准确性
           await updateMemory(extracted.updateTargetId, {
             content: taggedContent,
             category: extracted.category,
             embedding,
           });
         } else {
-          // Why: check for near-duplicates before inserting to avoid
-          // cluttering the memory store with redundant entries
+          // 原因：插入前检查近似重复项，避免冗余条目堆积在记忆存储中
           const duplicate = await findDuplicateMemory(
             userId,
             embedding,
@@ -141,8 +136,7 @@ export async function extractMemories(
   }
 }
 
-// Why: schema for the LLM worthiness check — kept minimal
-// (boolean + short reason) to minimize token usage and latency
+// 原因：LLM 价值判断的 schema——保持最小化（布尔值 + 简短理由）以减少 token 用量和延迟
 const worthinessSchema = z.object({
   worthy: z.boolean().describe("Whether the message is worth remembering"),
   reason: z
@@ -152,13 +146,11 @@ const worthinessSchema = z.object({
 });
 
 /**
- * Ask the LLM whether a single user message contains information
- * worth remembering long-term.
+ * 让 LLM 判断单条用户消息是否包含值得长期记忆的信息。
  *
- * Why: replaces the old hardcoded keyword list + fixed-interval
- * trigger with an intelligent check that can detect implicit
- * personal facts (e.g., "周末我一般都在写代码") that no keyword
- * list could cover.
+ * 原因：替换旧的硬编码关键词列表 + 固定间隔触发机制，
+ * 使用智能检查来检测隐含的个人事实（如"周末我一般都在写代码"），
+ * 这是任何关键词列表都无法覆盖的。
  */
 export async function shouldExtractMemory(
   userMessage: string
@@ -169,9 +161,8 @@ export async function shouldExtractMemory(
       userMessage
     );
 
-    // Why: use generateText + manual JSON parse instead of generateObject
-    // because some OpenAI-compatible models (e.g., qwen-plus) don't
-    // reliably support structured output / JSON mode
+    // 原因：使用 generateText + 手动 JSON 解析代替 generateObject，
+    // 因为某些 OpenAI 兼容模型（如 qwen-plus）不能可靠地支持结构化输出 / JSON 模式
     const result = await generateText({
       model: chatModel,
       prompt: prompt + '\n\n请严格按照以下 JSON 格式回复，不要输出其他内容：\n{"worthy": true或false, "reason": "简短理由"}',
@@ -179,7 +170,7 @@ export async function shouldExtractMemory(
 
     const raw = result.text.trim();
 
-    // Why: extract JSON from response — model may wrap it in markdown code block
+    // 原因：从响应中提取 JSON——模型可能会用 markdown 代码块包裹它
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return { worthy: false, reason: "parse-error" };
@@ -189,8 +180,7 @@ export async function shouldExtractMemory(
     const object = worthinessSchema.parse(parsed);
     return object;
   } catch (err) {
-    // Why: if the worthiness check fails, default to not extracting
-    // so we don't block or slow down the chat flow
+    // 原因：如果价值判断失败，默认不提取，以免阻塞或拖慢聊天流程
     console.error("[memory-extractor] Worthiness check failed:", err);
     return { worthy: false, reason: "error" };
   }

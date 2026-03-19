@@ -104,7 +104,7 @@ export default function MemoriesPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Header */}
+      {/* 页面头部 */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <Link
@@ -126,7 +126,7 @@ export default function MemoriesPage() {
         )}
       </div>
 
-      {/* Editor */}
+      {/* 编辑器 */}
       {adding && (
         <div className="mb-6">
           <MemoryEditor onSave={handleAdd} onCancel={handleCancel} />
@@ -142,7 +142,7 @@ export default function MemoriesPage() {
         </div>
       )}
 
-      {/* List */}
+      {/* 列表 */}
       {loading ? (
         <p className="py-8 text-center text-muted-foreground">加载中…</p>
       ) : (

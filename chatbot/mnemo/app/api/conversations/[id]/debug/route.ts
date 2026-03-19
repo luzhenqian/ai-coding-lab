@@ -6,9 +6,8 @@ import { buildConversationContext } from "@/lib/ai/context-builder";
 /**
  * GET /api/conversations/[id]/debug
  *
- * Why: exposes internal context-building state so developers can
- * inspect how the memory system assembles the prompt. This is a
- * teaching/debugging endpoint, not for production use.
+ * 原因：暴露内部上下文构建状态，方便开发者检查记忆系统如何组装提示词。
+ * 这是一个教学/调试端点，不用于生产环境。
  */
 export async function GET(
   _request: NextRequest,
@@ -17,9 +16,8 @@ export async function GET(
   try {
     const { id: conversationId } = await params;
 
-    // Why: retrieve the last user message so buildConversationContext
-    // can perform memory and RAG similarity search (it skips retrieval
-    // when currentUserMessage is not provided)
+    // 原因：获取最后一条用户消息，以便 buildConversationContext
+    // 可以进行记忆和 RAG 相似度搜索（未提供 currentUserMessage 时会跳过检索）
     const messages = await listMessagesByConversation(conversationId);
     const lastUserMessage = [...messages]
       .reverse()
@@ -47,8 +45,7 @@ export async function GET(
         memoryTokens: context.debugInfo.memoryTokens,
         ragTokens: context.debugInfo.ragTokens,
       },
-      // Why: expose retrieved memories and RAG chunks so the debug
-      // panel can show what context was injected into the prompt
+      // 原因：暴露检索到的记忆和 RAG 分块，以便调试面板显示注入提示词的上下文内容
       memories: context.retrievedMemories,
       ragChunks: context.ragChunks,
     });

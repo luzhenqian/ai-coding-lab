@@ -52,21 +52,21 @@ interface ConversationContext {
 }
 
 /**
- * Build the context window for a conversation.
+ * 构建对话的上下文窗口。
  *
- * Strategy (Phase 4):
- *   1. Check if a summary exists for this conversation
- *   2. Retrieve relevant memories AND document chunks in parallel
- *   3. If summary exists: System Prompt + memory + RAG + summary + recent messages
- *   4. If no summary: fall back to sliding window behavior
- *   5. Apply token budget — trim oldest messages until total fits
+ * 策略（第4阶段）：
+ *   1. 检查该对话是否存在摘要
+ *   2. 并行检索相关记忆和文档片段
+ *   3. 如果存在摘要：系统提示 + 记忆 + RAG + 摘要 + 近期消息
+ *   4. 如果没有摘要：回退到滑动窗口行为
+ *   5. 应用 token 预算——从最旧的消息开始裁剪，直到总量符合预算
  */
 export async function buildConversationContext(
   conversationId: string,
   currentUserMessage?: string
 ): Promise<ConversationContext> {
-  // Why: wrap entire body in try-catch so a database failure degrades
-  // gracefully to "memoryless mode" instead of crashing the chat
+  // 原因：用 try-catch 包裹整个函数体，以便数据库故障时优雅降级
+  // 为"无记忆模式"，而不是让聊天崩溃
   try {
   const dbMessages = await listMessagesByConversation(conversationId);
   const summary = await getLatestSummary(conversationId);
@@ -80,11 +80,10 @@ export async function buildConversationContext(
 
   if (currentUserMessage) {
     try {
-      // Why: generate the embedding once and reuse it for both
-      // memory search and document chunk search
+      // 原因：只生成一次嵌入向量，同时用于记忆搜索和文档片段搜索
       const queryEmbedding = await generateEmbedding(currentUserMessage);
 
-      // Why: run memory and RAG searches in parallel to minimize latency
+      // 原因：并行运行记忆和 RAG 搜索以减少延迟
       const [relevantMemories, relevantChunks] = await Promise.all([
         searchMemoriesBySimilarity(
           DEFAULT_USER_ID,
@@ -100,8 +99,7 @@ export async function buildConversationContext(
       ]);
 
       if (relevantMemories.length > 0) {
-        // Why: enforce per-section token budget so memories don't
-        // consume space needed by other context sections
+        // 原因：强制每个部分的 token 预算，防止记忆占用其他上下文部分所需的空间
         const memoryLines: string[] = [];
         let currentTokens = 0;
         for (const m of relevantMemories) {
@@ -122,15 +120,14 @@ export async function buildConversationContext(
           memoryTokens = estimateTokens(memoryText);
         }
 
-        // Why: fire-and-forget access count updates — not critical
-        // enough to block the response
+        // 原因：即发即忘地更新访问计数——不够关键，无需阻塞响应
         for (const mem of relevantMemories) {
           incrementAccessCount(mem.id).catch(() => {});
         }
       }
 
       if (relevantChunks.length > 0) {
-        // Why: enforce per-section token budget for RAG content
+        // 原因：为 RAG 内容强制执行每部分的 token 预算
         const ragLines: string[] = [];
         let currentTokens = 0;
         for (const chunk of relevantChunks) {
@@ -162,8 +159,7 @@ export async function buildConversationContext(
   let summaryTokens = 0;
 
   if (summary) {
-    // Why: Phase 2 — use summary + recent messages to keep context compact
-    // while preserving older conversation knowledge
+    // 原因：第2阶段——使用摘要 + 近期消息保持上下文紧凑，同时保留较早的对话知识
     const summaryText = `以下是之前对话的摘要：\n${summary.content}`;
     summaryTokens = estimateTokens(summaryText);
 
@@ -174,11 +170,10 @@ export async function buildConversationContext(
       memoryTokens -
       ragTokens;
 
-    // Why: keep only the most recent messages as raw text;
-    // older messages are captured in the summary
+    // 原因：只保留最近的消息作为原始文本；较早的消息已包含在摘要中
     const recentMessages = dbMessages.slice(-RECENT_MESSAGES_TO_KEEP);
 
-    // Why: trim from the front (oldest) so the most recent context survives
+    // 原因：从前面（最旧的）开始裁剪，以保留最近的上下文
     const budgeted: typeof recentMessages = [];
     for (let i = recentMessages.length - 1; i >= 0; i--) {
       const msg = recentMessages[i];
@@ -195,17 +190,15 @@ export async function buildConversationContext(
 
     const coreMessages: ModelMessage[] = [
       { role: "system", content: SYSTEM_PROMPT },
-      // Why: inject memory context after system prompt so the model
-      // knows about the user before processing conversation history
+      // 原因：在系统提示之后注入记忆上下文，让模型在处理对话历史之前先了解用户
       ...(memoryText
         ? [{ role: "system" as const, content: memoryText }]
         : []),
-      // Why: inject RAG content so the model can reference uploaded documents
+      // 原因：注入 RAG 内容，让模型可以引用上传的文档
       ...(ragText
         ? [{ role: "system" as const, content: ragText }]
         : []),
-      // Why: inject summary as a system message so the model treats it
-      // as authoritative context rather than a user turn
+      // 原因：以系统消息形式注入摘要，让模型将其视为权威上下文而非用户发言
       { role: "system", content: summaryText },
       ...budgeted.map(
         (m): ModelMessage => ({
@@ -235,7 +228,7 @@ export async function buildConversationContext(
     };
   }
 
-  // Why: Phase 1 fallback — no summary yet, use sliding window
+  // 原因：第1阶段回退——尚无摘要，使用滑动窗口
   const windowed = dbMessages.slice(-SLIDING_WINDOW_SIZE);
 
   let remainingBudget =
@@ -257,12 +250,11 @@ export async function buildConversationContext(
 
   const coreMessages: ModelMessage[] = [
     { role: "system", content: SYSTEM_PROMPT },
-    // Why: inject memory context after system prompt so the model
-    // knows about the user before processing conversation history
+    // 原因：在系统提示之后注入记忆上下文，让模型在处理对话历史之前先了解用户
     ...(memoryText
       ? [{ role: "system" as const, content: memoryText }]
       : []),
-    // Why: inject RAG content so the model can reference uploaded documents
+    // 原因：注入 RAG 内容，让模型可以引用上传的文档
     ...(ragText
       ? [{ role: "system" as const, content: ragText }]
       : []),
@@ -290,9 +282,8 @@ export async function buildConversationContext(
   };
 
   } catch (dbErr) {
-    // Why: if the database is down, fall back to a minimal context with
-    // just the system prompt and the current user message so the chat
-    // can continue in "memoryless mode" rather than failing entirely
+    // 原因：如果数据库宕机，回退到仅包含系统提示和当前用户消息的最小上下文，
+    // 让聊天可以在"无记忆模式"下继续，而不是完全失败
     console.error(
       "[context-builder] Database failure, falling back to memoryless mode:",
       dbErr

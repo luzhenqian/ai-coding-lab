@@ -15,13 +15,13 @@ interface UpdateMemoryData {
   embedding?: number[];
 }
 
-/** Insert a new memory and return it. */
+/** 插入新记忆并返回。 */
 export async function createMemory(data: CreateMemoryData) {
   const [memory] = await db.insert(memories).values(data).returning();
   return memory;
 }
 
-/** Update a memory's content, category, and/or embedding. */
+/** 更新记忆的内容、类别和/或嵌入向量。 */
 export async function updateMemory(id: string, data: UpdateMemoryData) {
   const [memory] = await db
     .update(memories)
@@ -31,12 +31,12 @@ export async function updateMemory(id: string, data: UpdateMemoryData) {
   return memory;
 }
 
-/** Delete a memory by id. */
+/** 根据 id 删除记忆。 */
 export async function deleteMemory(id: string) {
   await db.delete(memories).where(eq(memories.id, id));
 }
 
-/** List all memories for a user, newest first. */
+/** 列出用户的所有记忆，最新的排在前面。 */
 export async function listMemoriesByUser(userId: string) {
   return db
     .select()
@@ -46,9 +46,8 @@ export async function listMemoriesByUser(userId: string) {
 }
 
 /**
- * Find memories semantically similar to the query embedding.
- * Why: uses pgvector cosine distance operator (<=>) for efficient
- * approximate nearest neighbor search on the embedding column.
+ * 查找与查询嵌入向量语义相似的记忆。
+ * 原因：使用 pgvector 余弦距离运算符（<=>）对嵌入列进行高效的近似最近邻搜索。
  */
 export async function searchMemoriesBySimilarity(
   userId: string,
@@ -84,9 +83,8 @@ export async function searchMemoriesBySimilarity(
 }
 
 /**
- * Find an existing memory that is nearly identical to the given embedding.
- * Why: prevents storing duplicate memories by checking semantic similarity
- * before inserting a new one.
+ * 查找与给定嵌入向量几乎相同的已有记忆。
+ * 原因：在插入新记忆前检查语义相似度，防止存储重复记忆。
  */
 export async function findDuplicateMemory(
   userId: string,
@@ -117,9 +115,8 @@ export async function findDuplicateMemory(
 }
 
 /**
- * Increment access count and update last accessed timestamp.
- * Why: tracking access patterns enables future memory relevance ranking
- * and pruning of stale memories that are never retrieved.
+ * 增加访问计数并更新最后访问时间戳。
+ * 原因：跟踪访问模式可以为未来的记忆相关性排序和清理从未被检索的过期记忆提供依据。
  */
 export async function incrementAccessCount(id: string) {
   await db

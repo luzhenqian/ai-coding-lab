@@ -29,11 +29,10 @@ function toFlatMessages(
 }
 
 /**
- * Why: we bypass useChat entirely and call the API directly.
- * useChat's transport caches conversationId at creation time,
- * so auto-creating a conversation then immediately sending a
- * message is impossible without a full re-mount. Direct fetch
- * with streaming gives us full control over the request body.
+ * 原因：我们完全绕过 useChat，直接调用 API。
+ * useChat 的 transport 在创建时缓存 conversationId，
+ * 因此无法在自动创建对话后立即发送消息，除非完全重新挂载。
+ * 使用直接 fetch + 流式传输让我们完全控制请求体。
  */
 export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelProps) {
   const [messages, setMessages] = useState<UIMessage[]>([]);
@@ -41,12 +40,12 @@ export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelPr
   const [isWaiting, setIsWaiting] = useState(false);
   const [debugRefreshKey, setDebugRefreshKey] = useState(0);
 
-  // Why: ref tracks the latest conversationId without triggering re-renders,
-  // so the send function always reads the current value
+  // 原因：ref 追踪最新的 conversationId 而不触发重新渲染，
+  // 使得 send 函数始终读取当前值
   const conversationIdRef = useRef(conversationId);
   conversationIdRef.current = conversationId;
 
-  // Load existing messages when conversationId changes
+  // 当 conversationId 变化时加载已有消息
   useEffect(() => {
     if (!conversationId) {
       setMessages([]);
@@ -80,8 +79,8 @@ export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelPr
   const handleSubmit = useCallback(async (text: string) => {
     let activeId = conversationIdRef.current;
 
-    // Why: auto-create conversation on first message so users
-    // don't need to click "new conversation" before chatting
+    // 原因：在第一条消息时自动创建对话，
+    // 这样用户无需先点击"新建对话"即可开始聊天
     if (!activeId) {
       try {
         const res = await fetch("/api/conversations", { method: "POST" });
@@ -96,7 +95,7 @@ export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelPr
       }
     }
 
-    // Optimistically add the user message to the UI
+    // 乐观地将用户消息添加到 UI
     const userMsg: UIMessage = {
       id: crypto.randomUUID(),
       role: "user",
@@ -124,8 +123,8 @@ export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelPr
         return;
       }
 
-      // Why: read the plain text stream and progressively update the
-      // assistant message so the user sees tokens arrive in real time
+      // 原因：读取纯文本流并逐步更新助手消息，
+      // 使用户能实时看到 token 的到达
       const assistantMsg: UIMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
@@ -142,8 +141,8 @@ export function ChatPanel({ conversationId, onConversationCreated }: ChatPanelPr
         const { done, value } = await reader.read();
         if (done) break;
 
-        // Why: toTextStreamResponse sends raw text chunks,
-        // no protocol parsing needed
+        // 原因：toTextStreamResponse 发送原始文本块，
+        // 无需协议解析
         fullText += decoder.decode(value, { stream: true });
 
         setMessages((prev) => {

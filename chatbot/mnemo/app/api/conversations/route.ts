@@ -5,7 +5,7 @@ import {
 } from "@/lib/db/queries/conversations";
 import { DEFAULT_USER_ID } from "@/lib/constants";
 
-/** List all non-deleted conversations for the default user. */
+/** 列出默认用户的所有未删除对话。 */
 export async function GET() {
   try {
     const result = await listConversations(DEFAULT_USER_ID);
@@ -19,7 +19,7 @@ export async function GET() {
   }
 }
 
-/** Create a new conversation for the default user. */
+/** 为默认用户创建新对话。 */
 export async function POST() {
   try {
     const conversation = await createConversation(DEFAULT_USER_ID);

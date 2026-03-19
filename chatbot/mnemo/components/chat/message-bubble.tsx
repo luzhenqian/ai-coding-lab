@@ -64,8 +64,8 @@ export function MessageBubble({ role, content, createdAt }: MessageBubbleProps) 
                 : "bg-muted text-foreground"
             )}
           >
-            {/* Why: Streamdown handles incomplete Markdown gracefully during
-                streaming, unlike react-markdown which flickers on partial tokens */}
+            {/* 原因：Streamdown 在流式传输过程中能优雅地处理不完整的 Markdown，
+                而 react-markdown 在接收到部分 token 时会闪烁 */}
             <div className="prose prose-sm dark:prose-invert max-w-none break-words">
               <Streamdown
                 plugins={{ code }}

@@ -45,11 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Why: the last message in the array is the new user message
+    // 原因：数组中最后一条消息是新的用户消息
     const userMessage = incomingMessages[incomingMessages.length - 1];
 
-    // Why: pass the current user message so context-builder can search
-    // for relevant memories via semantic similarity
+    // 原因：传入当前用户消息，以便上下文构建器通过语义相似度检索相关记忆
     console.time("context-assembly");
     const context = await buildConversationContext(
       conversationId,
@@ -57,8 +56,7 @@ export async function POST(request: NextRequest) {
     );
     console.timeEnd("context-assembly");
 
-    // Why: log context composition for debugging token budget usage
-    // and retrieval effectiveness in production
+    // 原因：记录上下文组成信息，用于调试 token 预算使用情况和检索效果
     console.log("[chat/POST] Context debug:", {
       totalTokens: context.debugInfo.totalTokens,
       systemPromptTokens: context.debugInfo.systemPromptTokens,
@@ -70,7 +68,7 @@ export async function POST(request: NextRequest) {
       ragChunksRetrieved: context.ragChunks.length,
     });
 
-    // Append the current user message that hasn't been saved yet
+    // 追加尚未保存的当前用户消息
     const messagesForModel = [
       ...context.messages,
       { role: "user" as const, content: userMessage.content },
@@ -81,14 +79,13 @@ export async function POST(request: NextRequest) {
       messages: messagesForModel,
     });
 
-    // Why: after() runs post-response work without blocking the stream.
-    // We persist messages, optionally generate a title, and trigger
-    // summarization when the conversation grows beyond the threshold.
+    // 原因：after() 在不阻塞流式响应的情况下执行后续任务。
+    // 我们在此持久化消息、按需生成标题，并在对话超过阈值时触发摘要生成。
     after(async () => {
       try {
         const fullResponse = await result.text;
 
-        // Persist the user message
+        // 持久化用户消息
         await createMessage({
           conversationId,
           role: "user",
@@ -96,7 +93,7 @@ export async function POST(request: NextRequest) {
           tokenCount: estimateTokens(userMessage.content),
         });
 
-        // Persist the assistant message
+        // 持久化助手消息
         await createMessage({
           conversationId,
           role: "assistant",
@@ -106,11 +103,10 @@ export async function POST(request: NextRequest) {
 
         await touchConversation(conversationId);
 
-        // Why: auto-generate a title from the first exchange so the
-        // sidebar shows a meaningful name instead of "New conversation"
+        // 原因：从第一轮对话自动生成标题，让侧边栏显示有意义的名称而非"新对话"
         const messageCount =
           await countMessagesByConversation(conversationId);
-        // 2 because we just inserted the user + assistant pair
+        // 等于 2 是因为我们刚插入了用户 + 助手这一对消息
         if (messageCount <= 2) {
           const titlePrompt = TITLE_GENERATION_PROMPT.replace(
             "{userMessage}",
@@ -128,17 +124,15 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Why: trigger summarization when the number of uncovered messages
-        // exceeds the threshold. This keeps the context window manageable
-        // while preserving older conversation knowledge.
+        // 原因：当未被摘要覆盖的消息数量超过阈值时触发摘要生成。
+        // 这样可以保持上下文窗口在可控范围内，同时保留较早的对话知识。
         try {
           const latestSummary = await getLatestSummary(conversationId);
           const coveredCount = latestSummary?.coveredMessageCount ?? 0;
           const uncoveredCount = messageCount - coveredCount;
 
           if (uncoveredCount >= SUMMARY_TRIGGER_THRESHOLD) {
-            // Why: fetch all messages, then slice out only uncovered ones
-            // (those not yet captured by any summary)
+            // 原因：获取所有消息，然后只截取未被覆盖的部分（即尚未被任何摘要涵盖的消息）
             const allMessages =
               await listMessagesByConversation(conversationId);
             const uncoveredMessages = allMessages.slice(coveredCount);
@@ -161,18 +155,16 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch (summaryErr) {
-          // Why: summarization failure should not break the main flow;
-          // the conversation still works, just without an updated summary
+          // 原因：摘要生成失败不应中断主流程；对话仍可正常工作，只是没有更新摘要
           console.error(
             "[chat/after] Failed to generate summary:",
             summaryErr
           );
         }
 
-        // ── Hot Path: LLM judges whether this message is worth remembering ──
-        // Why: replaces the old hardcoded keyword + fixed-interval trigger
-        // with an intelligent per-message check that catches implicit
-        // personal facts no keyword list could cover.
+        // ── 热路径：LLM 判断该消息是否值得记忆 ──
+        // 原因：替代旧的硬编码关键词 + 固定间隔触发机制，
+        // 采用智能的逐条消息检查，能捕获关键词列表无法覆盖的隐含个人信息。
         try {
           const worthiness = await shouldExtractMemory(userMessage.content);
 
@@ -216,9 +208,8 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // ── Background: schedule idle extraction as safety net ──
-        // Why: when the user stops chatting, we review the full recent
-        // conversation to catch memories the per-message Hot Path missed.
+        // ── 后台：调度空闲提取作为安全网 ──
+        // 原因：当用户停止聊天后，我们回顾完整的近期对话，以捕获逐条热路径遗漏的记忆。
         scheduleIdleExtraction(conversationId, async () => {
           try {
             const bgMessageCount =
@@ -263,13 +254,12 @@ export async function POST(request: NextRequest) {
           }
         });
       } catch (err) {
-        // Why: after() errors don't surface to the client, so we log them
+        // 原因：after() 中的错误不会传递给客户端，所以我们在此记录日志
         console.error("[chat/after] Failed to persist messages:", err);
       }
     });
 
-    // Why: plain text stream is simpler to parse on the client
-    // than the UIMessageStream protocol
+    // 原因：纯文本流比 UIMessageStream 协议更易于在客户端解析
     return result.toTextStreamResponse();
   } catch (err) {
     console.error("[chat/POST] Unexpected error:", err);

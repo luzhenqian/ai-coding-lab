@@ -8,8 +8,8 @@ interface DateGroup<T> {
 }
 
 /**
- * Group items by date: 今天, 昨天, 最近7天, 更早
- * Only returns groups that have items.
+ * 按日期分组：今天、昨天、最近7天、更早
+ * 只返回有项目的分组。
  */
 export function groupByDate<T extends Dated>(items: T[]): DateGroup<T>[] {
   const now = new Date();

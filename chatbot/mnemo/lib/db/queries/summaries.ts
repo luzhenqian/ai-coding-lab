@@ -9,16 +9,15 @@ interface CreateSummaryData {
   tokenCount: number;
 }
 
-/** Insert a new summary for a conversation. */
+/** 为对话插入新摘要。 */
 export async function createSummary(data: CreateSummaryData) {
   const [summary] = await db.insert(summaries).values(data).returning();
   return summary;
 }
 
 /**
- * Get the most recent summary for a conversation.
- * Why: we only need the latest summary because each new summary
- * progressively incorporates the previous one.
+ * 获取对话的最新摘要。
+ * 原因：我们只需要最新的摘要，因为每条新摘要都会渐进式地包含前一条。
  */
 export async function getLatestSummary(conversationId: string) {
   const [summary] = await db

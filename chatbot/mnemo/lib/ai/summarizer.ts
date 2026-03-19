@@ -4,12 +4,10 @@ import { SUMMARY_PROMPT } from "@/lib/ai/prompts";
 import { MAX_SUMMARY_TOKENS } from "@/lib/constants";
 
 /**
- * Generate a progressive summary from an optional existing summary
- * and a batch of new messages.
+ * 从可选的已有摘要和一批新消息中生成渐进式摘要。
  *
- * Why: progressive summarization merges old context with new messages
- * so we never lose important information even as conversations grow
- * beyond the sliding window.
+ * 原因：渐进式摘要将旧上下文与新消息合并，
+ * 即使对话增长超出滑动窗口，也不会丢失重要信息。
  */
 export async function generateSummary(
   oldSummary: string | null,
@@ -38,8 +36,7 @@ export async function generateSummary(
     return result.text.trim();
   } catch (err) {
     console.error("[summarizer] Failed to generate summary:", err);
-    // Why: if summarization fails, return old summary so we don't lose
-    // existing context; if there's no old summary, return empty string
+    // 原因：如果摘要生成失败，返回旧摘要以免丢失已有上下文；如果没有旧摘要，返回空字符串
     return oldSummary ?? "";
   }
 }

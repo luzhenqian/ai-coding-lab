@@ -9,16 +9,15 @@ interface CreateMessageData {
   tokenCount: number;
 }
 
-/** Insert a single message into a conversation. */
+/** 向对话中插入一条消息。 */
 export async function createMessage(data: CreateMessageData) {
   const [message] = await db.insert(messages).values(data).returning();
   return message;
 }
 
 /**
- * List all messages in a conversation, ordered by creation time ascending.
- * Why: ascending order ensures the context builder and summarizer see
- * messages in chronological sequence, which matters for sliding window slicing.
+ * 按创建时间升序列出对话中的所有消息。
+ * 原因：升序确保上下文构建器和摘要器按时间顺序读取消息，这对滑动窗口切片至关重要。
  */
 export async function listMessagesByConversation(conversationId: string) {
   return db
@@ -28,7 +27,7 @@ export async function listMessagesByConversation(conversationId: string) {
     .orderBy(asc(messages.createdAt));
 }
 
-/** Count the total number of messages in a conversation. */
+/** 统计对话中的消息总数。 */
 export async function countMessagesByConversation(
   conversationId: string
 ): Promise<number> {

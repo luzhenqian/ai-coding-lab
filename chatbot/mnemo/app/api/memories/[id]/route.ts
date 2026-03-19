@@ -6,7 +6,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-/** PUT /api/memories/:id — update a memory's content and/or category. */
+/** PUT /api/memories/:id — 更新记忆的内容和/或分类。 */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
@@ -40,8 +40,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (body.content) {
       updateData.content = body.content;
-      // Why: re-generate embedding when content changes so similarity
-      // search stays accurate with the updated text
+      // 原因：内容变更时重新生成嵌入，确保相似度搜索与更新后的文本保持准确
       updateData.embedding = await generateEmbedding(body.content);
     }
     if (body.category) {
@@ -57,7 +56,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Why: exclude embedding from response for consistency
+    // 原因：为保持一致性，从响应中排除嵌入向量
     const { embedding: _, ...sanitized } = memory;
 
     return NextResponse.json(sanitized);
@@ -70,7 +69,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-/** DELETE /api/memories/:id — delete a memory. */
+/** DELETE /api/memories/:id — 删除记忆。 */
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;

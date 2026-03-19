@@ -1,10 +1,10 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
 
-// Why: support two chat providers — Anthropic (default) or OpenAI-compatible.
-// If OPENAI_CHAT_MODEL_ID is set, use the OpenAI provider for chat;
-// otherwise fall back to Anthropic. This lets users plug in third-party
-// providers (e.g., DashScope qwen-plus) via the OpenAI-compatible API.
+// 原因：支持两种聊天提供商——Anthropic（默认）或 OpenAI 兼容。
+// 如果设置了 OPENAI_CHAT_MODEL_ID，则使用 OpenAI 提供商进行聊天；
+// 否则回退到 Anthropic。这允许用户通过 OpenAI 兼容 API
+// 接入第三方提供商（如 DashScope qwen-plus）。
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
