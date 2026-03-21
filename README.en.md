@@ -10,7 +10,11 @@ AI Coding Lab is a collection of hands-on AI-assisted programming tutorials. Eac
 
 ## Projects
 
-### Vibe Coding
+### AI Coding
+
+Build software with AI assistance, learning development along the way.
+
+#### Vibe Coding
 
 Describe what you want in plain language and let AI generate the code. Perfect for absolute beginners.
 
@@ -20,7 +24,11 @@ Describe what you want in plain language and let AI generate the code. Perfect f
 | 2 | [Personal Blog](./vibe-coding/nextjs-blog/) | ⭐⭐ Easy | A full-stack blog with article management, categories, tags, and comments |
 | 3 | [Personal Blog (Comments)](./vibe-coding/nextjs-blog-comment/) | ⭐⭐ Easy | Extended blog with nested comment replies |
 
-### RAG
+### AI Applications
+
+Build RAG, Chatbot, Agent and other AI applications hands-on, mastering mainstream AI development patterns.
+
+#### RAG
 
 Retrieval-Augmented Generation projects.
 
@@ -28,19 +36,30 @@ Retrieval-Augmented Generation projects.
 |---|---------|-----------|-------------------|
 | 1 | [Employee Handbook Q&A Bot](./rag/ask-book/) | ⭐⭐⭐ Intermediate | A RAG chatbot that answers questions from uploaded PDFs |
 
-### Agent
+#### Chatbot
+
+AI chatbot projects.
+
+| # | Project | Difficulty | What You'll Build |
+|---|---------|-----------|-------------------|
+| 1 | [Mnemo Memory Chat Assistant](./chatbot/mnemo/) | ⭐⭐⭐⭐ Advanced | An AI chat assistant with long-term memory, supporting document upload, semantic search, and dual-track memory extraction |
+
+#### Agent
 
 AI Agent projects.
 
 | # | Project | Difficulty | What You'll Build |
 |---|---------|-----------|-------------------|
 | 1 | [Repo Analyzer](./agent/repo-analyzer/) | ⭐⭐⭐ Intermediate | An AI Agent that analyzes code repositories |
+| 2 | [ResearchHub Multi-Source Research Assistant](./agent/research-hub/) | ⭐⭐⭐ Intermediate | AI parallel research from 4 sources — enter a company name, get an analysis report (parallelization pattern) |
+| 3 | [JobSpy Job Analysis Assistant](./agent/job-spy/) | ⭐⭐⭐ Intermediate | AI parses JD + matches resume, chain analysis vs single-prompt comparison, outputs job application strategies |
 
 ## Who Is This For
 
 - **Complete beginners**: No coding experience needed — start with Vibe Coding
 - **Developers**: Learn how to boost productivity with AI-assisted development
 - **Curious minds**: See what "AI writes code" actually looks like in practice
+- **AI app builders**: Want to build RAG, Chatbot, Agent and other AI products hands-on
 
 ## How to Use
 
