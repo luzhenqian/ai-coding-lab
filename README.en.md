@@ -51,8 +51,8 @@ AI Agent projects.
 | # | Project | Difficulty | What You'll Build |
 |---|---------|-----------|-------------------|
 | 1 | [Repo Analyzer](./agent/repo-analyzer/) | ⭐⭐⭐ Intermediate | An AI Agent that analyzes code repositories |
-| 2 | [ResearchHub Multi-Source Research Assistant](./agent/research-hub/) | ⭐⭐⭐ Intermediate | AI parallel research from 4 sources — enter a company name, get an analysis report (parallelization pattern) |
-| 3 | [JobSpy Job Analysis Assistant](./agent/job-spy/) | ⭐⭐⭐ Intermediate | AI parses JD + matches resume, chain analysis vs single-prompt comparison, outputs job application strategies |
+| 2 | [JobSpy Job Analysis Assistant](./agent/job-spy/) | ⭐⭐⭐ Intermediate | AI parses JD + matches resume, chain analysis vs single-prompt comparison, outputs job application strategies |
+| 3 | [ResearchHub Multi-Source Research Assistant](./agent/research-hub/) | ⭐⭐⭐ Intermediate | AI parallel research from 4 sources — enter a company name, get an analysis report (parallelization pattern) |
 
 ## Who Is This For
 
