@@ -1,0 +1,23 @@
+{
+  "primary_color": "#2563EB",
+  "font_cn": "微软雅黑",
+  "font_en": "Arial",
+  "title_size_pt": 24,
+  "body_size_pt": 11,
+  "table_header_bg": "#2563EB",
+  "table_header_text": "#FFFFFF",
+  "currency": "CNY",
+  "currency_symbol": "¥",
+  "payment_terms_days": 30,
+  "tax_rate_percent": 0,
+  "invoice_number_format": "INV-{year}-{seq:03d}",
+  "company_info": {
+    "name": "",
+    "address": "",
+    "email": "",
+    "phone": "",
+    "bank_name": "",
+    "bank_account": ""
+  },
+  "footer_note": "感谢您的合作！"
+}

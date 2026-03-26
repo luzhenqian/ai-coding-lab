@@ -1,0 +1,16 @@
+{
+  "name": "claude-skills-demo",
+  "version": "1.0.0",
+  "description": "演示如何通过 Anthropic API 使用 Claude Skills",
+  "type": "module",
+  "scripts": {
+    "demo": "node --no-deprecation --import tsx/esm demo_api_with_skill.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
+  }
+}
