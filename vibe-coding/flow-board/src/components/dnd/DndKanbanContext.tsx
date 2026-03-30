@@ -6,7 +6,7 @@ import {
   PointerSensor, KeyboardSensor, useSensor, useSensors,
   type DragStartEvent, type DragEndEvent, type DragOverEvent,
 } from '@dnd-kit/core';
-import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, horizontalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { useBoardContext } from '@/hooks/useBoard';
 import { useSync } from '@/hooks/useSync';
 import CardItem from '@/components/card/CardItem';
@@ -69,39 +69,64 @@ export default function DndKanbanContext({ children }: DndKanbanContextProps) {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    const dragType = activeType;
+
     setActiveId(null);
     setActiveType(null);
 
     if (!over || active.id === over.id) return;
 
-    if (activeType === 'column') {
-      dispatch({ type: 'REORDER_COLUMNS', activeId: String(active.id), overId: String(over.id) });
-      const reordered = board.columns.map((c, i) => ({ id: c.id, position: i }));
+    if (dragType === 'column') {
+      // over might be a card inside a column — resolve to column id
+      let overColumnId = String(over.id);
+      const isColumn = board.columns.some(c => c.id === overColumnId);
+      if (!isColumn) {
+        const parentCol = findColumnByCardId(overColumnId);
+        if (parentCol) overColumnId = parentCol.id;
+        else return;
+      }
+      if (String(active.id) === overColumnId) return;
+
+      // Compute new order before dispatch (closure has stale state after dispatch)
+      const oldIdx = board.columns.findIndex(c => c.id === String(active.id));
+      const newIdx = board.columns.findIndex(c => c.id === overColumnId);
+      if (oldIdx === -1 || newIdx === -1) return;
+      const reordered = arrayMove(board.columns, oldIdx, newIdx).map((c, i) => ({ id: c.id, position: i }));
+
+      dispatch({ type: 'REORDER_COLUMNS', activeId: String(active.id), overId: overColumnId });
       enqueue({ method: 'PUT', url: '/api/columns', body: { items: reordered } });
     } else {
-      const fromCol = findColumnByCardId(String(active.id));
-      if (!fromCol) return;
+      const activeCardId = String(active.id);
+      const overId = String(over.id);
 
-      const currentCol = board.columns.find(col => col.cards.some(c => c.id === String(active.id)));
+      const currentCol = board.columns.find(col => col.cards.some(c => c.id === activeCardId));
       if (!currentCol) return;
 
-      const overId = String(over.id);
       const overCol = board.columns.find(c => c.id === overId) || findColumnByCardId(overId);
 
+      // Same-column reorder
       if (overCol && currentCol.id === overCol.id) {
-        const oldIdx = currentCol.cards.findIndex(c => c.id === String(active.id));
+        const oldIdx = currentCol.cards.findIndex(c => c.id === activeCardId);
         const newIdx = currentCol.cards.findIndex(c => c.id === overId);
-        if (oldIdx !== newIdx && newIdx >= 0) {
+        if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
+          // Compute new order before dispatch
+          const reorderedCards = arrayMove(currentCol.cards, oldIdx, newIdx);
+          const items = reorderedCards.map((c, i) => ({ id: c.id, position: i, columnId: currentCol.id }));
+
           dispatch({
             type: 'MOVE_CARD',
-            cardId: String(active.id),
+            cardId: activeCardId,
             fromColumnId: currentCol.id,
             toColumnId: currentCol.id,
             toIndex: newIdx,
           });
+          enqueue({ method: 'PUT', url: '/api/cards', body: { items } });
+          return;
         }
       }
 
+      // Cross-column move (already handled by handleDragOver dispatch) — just sync current state
+      // Build items from current board state which already reflects the move from handleDragOver
       for (const col of board.columns) {
         const items = col.cards.map((c, i) => ({ id: c.id, position: i, columnId: col.id }));
         if (items.length > 0) {
