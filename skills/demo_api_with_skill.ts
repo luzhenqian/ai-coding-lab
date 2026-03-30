@@ -102,7 +102,7 @@ function loadSkill(skillName: string): string {
   if (!existsSync(skillPath)) {
     throw new Error(
       `Skill 不存在：${skillPath}\n` +
-        `请确认 .claude/skills/${skillName}/SKILL.md 文件已创建。`
+        `请确认 .claude/skills/${skillName}/SKILL.md 文件已创建。`,
     );
   }
 
@@ -210,8 +210,12 @@ async function demoBasic(): Promise<void> {
   const systemBlocks = buildSystemBlocks("chinese-blog-writer");
 
   console.log(`\n[配置] 模型: ${MODEL_ID}`);
-  console.log(`[配置] Base URL: ${process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com (默认)"}`);
-  console.log(`[配置] Skill 内容长度: ${systemBlocks.map((b) => b.text.length).join(" + ")} 字符`);
+  console.log(
+    `[配置] Base URL: ${process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com (默认)"}`,
+  );
+  console.log(
+    `[配置] Skill 内容长度: ${systemBlocks.map((b) => b.text.length).join(" + ")} 字符`,
+  );
   console.log("[状态] 正在调用 API（流式输出）...\n");
 
   // 使用流式调用——内容会逐字打印，不用等整个博客生成完
@@ -246,7 +250,7 @@ async function demoBasic(): Promise<void> {
   const finalMessage = await stream.finalMessage();
   console.log(
     `\n\n[Token 用量] 输入: ${finalMessage.usage.input_tokens}, ` +
-      `输出: ${finalMessage.usage.output_tokens}`
+      `输出: ${finalMessage.usage.output_tokens}`,
   );
 }
 
@@ -406,17 +410,23 @@ async function demoCaching(): Promise<void> {
     // 流式结束后获取完整消息，打印 token 用量和缓存信息
     const finalMessage = await stream.finalMessage();
     const usage = finalMessage.usage;
-    console.log(`\n[Token] 输入: ${usage.input_tokens}, 输出: ${usage.output_tokens}`);
+    console.log(
+      `\n[Token] 输入: ${usage.input_tokens}, 输出: ${usage.output_tokens}`,
+    );
 
     // 检查缓存状态
     const cacheRead = (usage as any).cache_read_input_tokens ?? 0;
     const cacheCreate = (usage as any).cache_creation_input_tokens ?? 0;
 
     if (cacheCreate > 0) {
-      console.log(`[缓存] 写入缓存: ${cacheCreate} tokens（首次调用，1.25x 费率）`);
+      console.log(
+        `[缓存] 写入缓存: ${cacheCreate} tokens（首次调用，1.25x 费率）`,
+      );
     }
     if (cacheRead > 0) {
-      console.log(`[缓存] 命中缓存: ${cacheRead} tokens（0.1x 费率，节省约 90%！）`);
+      console.log(
+        `[缓存] 命中缓存: ${cacheRead} tokens（0.1x 费率，节省约 90%！）`,
+      );
     }
     if (cacheCreate === 0 && cacheRead === 0) {
       console.log("[缓存] 未触发缓存（可能 skill 内容低于最小缓存 token 数）");
@@ -497,7 +507,7 @@ async function demoMultiTurn(): Promise<void> {
 
     console.log(
       `\n[Token] 输入: ${finalMessage.usage.input_tokens}, ` +
-        `输出: ${finalMessage.usage.output_tokens}`
+        `输出: ${finalMessage.usage.output_tokens}`,
     );
   }
 }
@@ -510,7 +520,7 @@ async function main(): Promise<void> {
   // 检查 API Key 是否设置
   if (!process.env.ANTHROPIC_API_KEY) {
     console.error(
-      "❌ 请先设置环境变量：export ANTHROPIC_API_KEY='your-api-key'"
+      "❌ 请先设置环境变量：export ANTHROPIC_API_KEY='your-api-key'",
     );
     process.exit(1);
   }
