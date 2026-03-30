@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useBoardContext } from '@/hooks/useBoard';
 import { useSync } from '@/hooks/useSync';
+import { useSearch } from '@/hooks/useSearch';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import BoardView from '@/components/board/BoardView';
 import DndKanbanContext from '@/components/dnd/DndKanbanContext';
 import CardDetail from '@/components/card/CardDetail';
+import SearchBar from '@/components/ui/SearchBar';
+import FilterPanel from '@/components/ui/FilterPanel';
 import type { Column } from '@/types';
 
 export default function BoardPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,6 +21,8 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
   const { enqueue } = useSync();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const { filter, updateFilter, resetFilter, isActive, matchesFilter } = useSearch();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch(`/api/boards/${id}`)
@@ -112,6 +117,14 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
           onShowArchive={() => {}}
         />
         <main className={`flex-1 overflow-hidden transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+          <div className="px-4 pt-4 space-y-2">
+            <div className="max-w-md">
+              <SearchBar value={filter.search} onChange={v => updateFilter({ search: v })} inputRef={searchInputRef} />
+            </div>
+            {isActive && (
+              <FilterPanel filter={filter} tags={state.tags} onUpdate={updateFilter} onReset={resetFilter} />
+            )}
+          </div>
           <DndKanbanContext>
             <BoardView
               board={state.currentBoard}
@@ -120,6 +133,7 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
               onAddColumn={handleAddColumn}
               onAddCard={handleAddCard}
               onCardClick={setSelectedCardId}
+              filterFn={matchesFilter}
             />
           </DndKanbanContext>
         </main>
