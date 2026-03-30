@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import BoardView from '@/components/board/BoardView';
 import DndKanbanContext from '@/components/dnd/DndKanbanContext';
+import CardDetail from '@/components/card/CardDetail';
 import type { Column } from '@/types';
 
 export default function BoardPage({ params }: { params: Promise<{ id: string }> }) {
@@ -85,6 +86,10 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
     if (boardId === id) router.push('/');
   };
 
+  const selectedCard = state.currentBoard?.columns
+    .flatMap(c => c.cards)
+    .find(c => c.id === selectedCardId) || null;
+
   if (!state.currentBoard) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -119,6 +124,12 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
           </DndKanbanContext>
         </main>
       </div>
+      {selectedCard && (
+        <CardDetail
+          card={selectedCard}
+          onClose={() => setSelectedCardId(null)}
+        />
+      )}
     </div>
   );
 }
