@@ -12,6 +12,7 @@ import DndKanbanContext from '@/components/dnd/DndKanbanContext';
 import CardDetail from '@/components/card/CardDetail';
 import SearchBar from '@/components/ui/SearchBar';
 import FilterPanel from '@/components/ui/FilterPanel';
+import ArchivePanel from '@/components/board/ArchivePanel';
 import type { Column } from '@/types';
 
 export default function BoardPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +22,7 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
   const { enqueue } = useSync();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [showArchive, setShowArchive] = useState(false);
   const { filter, updateFilter, resetFilter, isActive, matchesFilter } = useSearch();
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -114,7 +116,7 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
           onSelectBoard={(boardId) => router.push(`/board/${boardId}`)}
           onCreateBoard={handleCreateBoard}
           onDeleteBoard={handleDeleteBoard}
-          onShowArchive={() => {}}
+          onShowArchive={() => setShowArchive(true)}
         />
         <main className={`flex-1 overflow-hidden transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
           <div className="px-4 pt-4 space-y-2">
@@ -144,6 +146,12 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
           onClose={() => setSelectedCardId(null)}
         />
       )}
+      <ArchivePanel
+        open={showArchive}
+        onClose={() => setShowArchive(false)}
+        boardId={id}
+        columns={state.currentBoard?.columns || []}
+      />
     </div>
   );
 }
