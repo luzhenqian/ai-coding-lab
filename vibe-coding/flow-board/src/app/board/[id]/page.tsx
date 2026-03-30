@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useBoardContext } from '@/hooks/useBoard';
 import { useSync } from '@/hooks/useSync';
 import { useSearch } from '@/hooks/useSearch';
+import { useKeyboard } from '@/hooks/useKeyboard';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import BoardView from '@/components/board/BoardView';
@@ -77,6 +78,22 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
     setSelectedCardId(card.id);
   };
 
+  const { focusedCardId } = useKeyboard({
+    board: state.currentBoard,
+    onNewCard: handleAddCard,
+    onEditCard: setSelectedCardId,
+    onDeleteCard: (cardId) => {
+      dispatch({ type: 'DELETE_CARD', id: cardId });
+      enqueue({ method: 'DELETE', url: `/api/cards/${cardId}` });
+    },
+    onArchiveCard: (cardId) => {
+      dispatch({ type: 'ARCHIVE_CARD', id: cardId });
+      enqueue({ method: 'POST', url: `/api/cards/${cardId}/archive`, body: { action: 'archive' } });
+    },
+    onFocusSearch: () => searchInputRef.current?.focus(),
+    modalOpen: !!selectedCardId || showArchive,
+  });
+
   const handleCreateBoard = async (title: string) => {
     const res = await fetch('/api/boards', {
       method: 'POST',
@@ -136,6 +153,7 @@ export default function BoardPage({ params }: { params: Promise<{ id: string }> 
               onAddCard={handleAddCard}
               onCardClick={setSelectedCardId}
               filterFn={matchesFilter}
+              focusedCardId={focusedCardId}
             />
           </DndKanbanContext>
         </main>
