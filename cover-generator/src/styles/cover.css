@@ -1,0 +1,294 @@
+/*
+ * Cover styles — 1:1 port of the original HTML mockup.
+ * All numeric values are deliberately fixed so output PNGs are pixel-stable
+ * across episodes. Don't refactor these into "responsive" units.
+ */
+
+.cover {
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  background: #090b11;
+  position: relative;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+/* ========== Background layers ========== */
+
+.cover .bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(16, 185, 129, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.02) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 65%);
+}
+
+.cover .bg-glow-1 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  top: -150px;
+  right: 0;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.09) 0%, transparent 65%);
+  filter: blur(50px);
+}
+
+.cover .bg-glow-2 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  bottom: -120px;
+  left: 100px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.06) 0%, transparent 65%);
+  filter: blur(45px);
+}
+
+.cover .bg-glow-3 {
+  position: absolute;
+  width: 400px;
+  height: 300px;
+  top: 40%;
+  right: 200px;
+  background: radial-gradient(ellipse, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+  filter: blur(30px);
+}
+
+.cover .scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.02) 3px,
+    rgba(0, 0, 0, 0.02) 6px
+  );
+}
+
+/* ========== Frame ========== */
+
+.cover .frame {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.035);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.cover .frame-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(16, 185, 129, 0.3);
+  border-style: solid;
+}
+.cover .fc-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.cover .fc-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.cover .fc-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+.cover .fc-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+.cover .v-line {
+  position: absolute;
+  right: 548px;
+  top: 80px;
+  bottom: 80px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(16, 185, 129, 0.08) 20%,
+    rgba(16, 185, 129, 0.08) 80%,
+    transparent 100%
+  );
+}
+
+/* ========== Ghost code ========== */
+
+.cover .code-ghost {
+  position: absolute;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.04);
+  white-space: pre;
+  pointer-events: none;
+  line-height: 1.5;
+}
+.cover .cg-1 { top: 22px; left: 56px; }
+.cover .cg-2 { bottom: 24px; left: 56px; }
+
+/* ========== Left content ========== */
+
+.cover .content-left {
+  position: absolute;
+  left: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 600px;
+  z-index: 10;
+}
+
+.cover .series-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-bottom: 20px;
+}
+.cover .series-badge span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 1.5px;
+}
+.cover .series-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.cover .ep-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+
+.cover .main-title {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+  font-size: 54px;
+  line-height: 1.18;
+  color: #f0f0f0;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+}
+.cover .highlight-svg {
+  display: block;
+  height: 66px;
+  margin-bottom: -2px;
+}
+
+.cover .subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.6;
+  margin-top: 16px;
+  max-width: 480px;
+}
+.cover .subtitle .accent { color: rgba(52, 211, 153, 0.85); }
+
+.cover .stats-row {
+  display: flex;
+  gap: 24px;
+  margin-top: 28px;
+}
+.cover .stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cover .stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  color: #e0e0e0;
+}
+.cover .stat-value.green { color: #34d399; }
+.cover .stat-value.red { color: #f87171; }
+.cover .stat-value.yellow { color: #fbbf24; }
+.cover .stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.28);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ========== Right pipeline ========== */
+
+.cover .shield-area {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 500px;
+}
+
+.cover .perm-layer {
+  position: relative;
+  border-radius: 8px;
+  padding: 9px 14px;
+  margin-bottom: 7px;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cover .perm-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.cover .perm-info { flex: 1; }
+.cover .perm-name { font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.cover .perm-desc { font-size: 9px; opacity: 0.6; margin-top: 2px; }
+
+.cover .perm-badge {
+  font-size: 8px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.cover .perm-arrow {
+  width: 2px;
+  height: 7px;
+  margin: 0 auto;
+  position: relative;
+  top: -7px;
+  margin-bottom: -7px;
+}
+
+/* ========== Bottom tags ========== */
+
+.cover .bottom-bar {
+  position: absolute;
+  bottom: 24px;
+  left: 56px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cover .tech-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0.5px;
+}
