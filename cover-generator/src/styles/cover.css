@@ -1,16 +1,25 @@
 /*
- * Cover styles — 1:1 port of the original HTML mockup.
- * All numeric values are deliberately fixed so output PNGs are pixel-stable
- * across episodes. Don't refactor these into "responsive" units.
+ * Cover styles — pixel-stable port of the original HTML mockup, parameterized
+ * by theme via CSS custom properties. The `.cover` root receives an inline
+ * style with `--cv-primary`, `--cv-glow-1/2/3`, etc. from `themeStyle()`,
+ * so every theme variant uses the same selectors.
  */
 
 .cover {
   width: 1280px;
   height: 720px;
   overflow: hidden;
-  background: #090b11;
   position: relative;
   font-family: 'Noto Sans SC', sans-serif;
+
+  /* Defaults — themeStyle() overrides these. Provided so the cover renders
+     even if no theme is set (shouldn't happen in practice). */
+  --cv-primary: #34d399;
+  --cv-primary-rgb: 52, 211, 153;
+  --cv-glow-1: rgba(16, 185, 129, 0.09);
+  --cv-glow-2: rgba(239, 68, 68, 0.06);
+  --cv-glow-3: rgba(16, 185, 129, 0.04);
+  --cv-grid-line: rgba(16, 185, 129, 0.02);
 }
 
 /* ========== Background layers ========== */
@@ -19,8 +28,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(16, 185, 129, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(16, 185, 129, 0.02) 1px, transparent 1px);
+    linear-gradient(var(--cv-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cv-grid-line) 1px, transparent 1px);
   background-size: 36px 36px;
   mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 65%);
   -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 65%);
@@ -32,27 +41,25 @@
   height: 600px;
   top: -150px;
   right: 0;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.09) 0%, transparent 65%);
+  background: radial-gradient(circle, var(--cv-glow-1) 0%, transparent 65%);
   filter: blur(50px);
 }
-
 .cover .bg-glow-2 {
   position: absolute;
   width: 500px;
   height: 500px;
   bottom: -120px;
   left: 100px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.06) 0%, transparent 65%);
+  background: radial-gradient(circle, var(--cv-glow-2) 0%, transparent 65%);
   filter: blur(45px);
 }
-
 .cover .bg-glow-3 {
   position: absolute;
   width: 400px;
   height: 300px;
   top: 40%;
   right: 200px;
-  background: radial-gradient(ellipse, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+  background: radial-gradient(ellipse, var(--cv-glow-3) 0%, transparent 60%);
   filter: blur(30px);
 }
 
@@ -83,7 +90,7 @@
   position: absolute;
   width: 20px;
   height: 20px;
-  border-color: rgba(16, 185, 129, 0.3);
+  border-color: rgba(var(--cv-primary-rgb), 0.3);
   border-style: solid;
 }
 .cover .fc-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
@@ -100,8 +107,8 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(16, 185, 129, 0.08) 20%,
-    rgba(16, 185, 129, 0.08) 80%,
+    rgba(var(--cv-primary-rgb), 0.08) 20%,
+    rgba(var(--cv-primary-rgb), 0.08) 80%,
     transparent 100%
   );
 }
@@ -137,23 +144,23 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: 6px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: rgba(var(--cv-primary-rgb), 0.10);
+  border: 1px solid rgba(var(--cv-primary-rgb), 0.25);
   margin-bottom: 20px;
 }
 .cover .series-badge span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 700;
-  color: #34d399;
+  color: var(--cv-primary);
   letter-spacing: 1.5px;
 }
 .cover .series-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  background: var(--cv-primary);
+  box-shadow: 0 0 8px rgba(var(--cv-primary-rgb), 0.6);
 }
 
 .cover .ep-number {
@@ -186,9 +193,9 @@
   color: rgba(255, 255, 255, 0.38);
   line-height: 1.6;
   margin-top: 16px;
-  max-width: 480px;
+  max-width: 500px;
 }
-.cover .subtitle .accent { color: rgba(52, 211, 153, 0.85); }
+.cover .subtitle .accent { color: rgba(var(--cv-primary-rgb), 0.85); }
 
 .cover .stats-row {
   display: flex;
@@ -209,6 +216,12 @@
 .cover .stat-value.green { color: #34d399; }
 .cover .stat-value.red { color: #f87171; }
 .cover .stat-value.yellow { color: #fbbf24; }
+.cover .stat-value.blue { color: #38bdf8; }
+.cover .stat-value.purple { color: #a855f7; }
+.cover .stat-value.orange { color: #f4723d; }
+.cover .stat-value.indigo { color: #818cf8; }
+.cover .stat-value.cyan { color: #22d3ee; }
+.cover .stat-value.amber { color: #fbbf24; }
 .cover .stat-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -217,7 +230,7 @@
   text-transform: uppercase;
 }
 
-/* ========== Right pipeline ========== */
+/* ========== Right pipeline (variant: pipeline) ========== */
 
 .cover .shield-area {
   position: absolute;
@@ -270,6 +283,126 @@
   position: relative;
   top: -7px;
   margin-bottom: -7px;
+}
+
+/* Architecture-overview style: layer with module chip pills */
+
+.cover .arch-layer {
+  position: relative;
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+
+.cover .arch-layer-label {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cover .arch-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cover .arch-mod {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+/* ========== Right state-machine (variant: state-machine) ========== */
+
+.cover .state-area {
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 460px;
+  height: 500px;
+}
+
+.cover .state-area svg.state-edges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cover .state-node {
+  position: absolute;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  border: 1px solid;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.cover .state-node.emp-primary {
+  font-weight: 700;
+  font-size: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 0 20px rgba(var(--cv-primary-rgb), 0.1);
+}
+.cover .state-node.emp-final {
+  font-weight: 700;
+  padding: 10px 22px;
+}
+
+/* Streaming gradient lines (decoration on the right band) */
+.cover .stream-lines {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 600px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cover .stream-line {
+  position: absolute;
+  height: 1px;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--cv-primary-rgb), 0.15) 40%,
+    rgba(var(--cv-primary-rgb), 0.3) 70%,
+    transparent 100%
+  );
+}
+.cover .stream-line::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -2.5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(var(--cv-primary-rgb), 0.6);
+  box-shadow: 0 0 8px rgba(var(--cv-primary-rgb), 0.4);
+}
+
+/* yield* / decorative top-right text badge */
+.cover .yield-badge {
+  position: absolute;
+  top: 28px;
+  right: 50px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: rgba(var(--cv-primary-rgb), 0.25);
+  letter-spacing: 2px;
 }
 
 /* ========== Bottom tags ========== */

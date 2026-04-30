@@ -23,11 +23,13 @@ export async function renderCover(
   // Yield one frame so any pending font loads / state updates flush first.
   await new Promise(r => requestAnimationFrame(r));
 
+  // Background is fully painted by the cover's theme + glows — any solid
+  // dark fallback works. The element itself has no transparent regions.
   const canvas = await html2canvas(element, {
     scale: resolution.scale,
     useCORS: true,
     allowTaint: true,
-    backgroundColor: CANVAS.background,
+    backgroundColor: '#06070a',
     width: CANVAS.width,
     height: CANVAS.height,
     logging: false,

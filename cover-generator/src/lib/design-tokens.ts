@@ -1,4 +1,4 @@
-import type {LayerColor, StatColor} from './types';
+import type {LayerColor, NodeColor, StatColor, ThemeId} from './types';
 
 /**
  * N-Brand cover design tokens — the SINGLE source of truth.
@@ -10,18 +10,13 @@ import type {LayerColor, StatColor} from './types';
 export const CANVAS = {
   width: 1280,
   height: 720,
-  background: '#090b11',
 } as const;
 
+/** Theme-independent constants — text colors, fonts, etc. */
 export const COLORS = {
-  /** Body text */
   text: '#f0f0f0',
   textDim: 'rgba(255,255,255,0.38)',
   textMuted: 'rgba(255,255,255,0.28)',
-
-  /** Primary brand accent — used for badge, frame, etc. */
-  emerald: '#34d399',
-  emeraldDark: '#10b981',
 
   /** Stats colors */
   stat: {
@@ -29,14 +24,110 @@ export const COLORS = {
     green: '#34d399',
     red: '#f87171',
     yellow: '#fbbf24',
+    blue: '#38bdf8',
+    purple: '#a855f7',
+    orange: '#f4723d',
+    indigo: '#818cf8',
+    cyan: '#22d3ee',
+    amber: '#fbbf24',
   } as Record<StatColor, string>,
 } as const;
 
 /**
- * Per-layer color palettes. Each layer slot has 4 derived shades:
- *   border / bg / text / badge
- * to keep the cards visually distinct without polluting the rest of the canvas.
+ * Theme palette — the chrome accent (badge / frame / glows / title gradient
+ * stops). Each preset declares one theme; the cover root gets `theme-{id}`
+ * class and cover.css picks up the matching CSS variables.
+ *
+ * Adding a theme: extend ThemeId in types.ts AND add an entry here AND a CSS
+ * block in cover.css under .cover.theme-<id>.
  */
+export interface ThemeTokens {
+  /** Background color — slight variations work better than pure black. */
+  bg: string;
+  /** Primary chrome color: badge text/border, frame corners, vLine, subtitle accent. */
+  primary: string;
+  primaryRgb: string; // for use in rgba(...)
+  /** Three radial-gradient glow colors: top-right, bottom-left, center. */
+  glow1Color: string;
+  glow2Color: string;
+  glow3Color: string;
+  /** Subtle 36-40px grid line color. */
+  gridLineColor: string;
+  /** Title highlighted-word SVG gradient stops (3-stop). */
+  titleGradient: [string, string, string];
+}
+
+export const THEMES: Record<ThemeId, ThemeTokens> = {
+  emerald: {
+    bg: '#090b11',
+    primary: '#34d399',
+    primaryRgb: '52,211,153',
+    glow1Color: 'rgba(16,185,129,0.09)',
+    glow2Color: 'rgba(239,68,68,0.06)',
+    glow3Color: 'rgba(16,185,129,0.04)',
+    gridLineColor: 'rgba(16,185,129,0.02)',
+    titleGradient: ['#34d399', '#10b981', '#f87171'],
+  },
+  orange: {
+    bg: '#08090d',
+    primary: '#f4723d',
+    primaryRgb: '244,114,61',
+    glow1Color: 'rgba(99,102,241,0.12)',  // top-left indigo
+    glow2Color: 'rgba(244,114,61,0.10)',   // bottom-right orange
+    glow3Color: 'rgba(56,189,248,0.04)',   // center sky
+    gridLineColor: 'rgba(56,189,248,0.03)',
+    titleGradient: ['#38bdf8', '#a855f7', '#f4723d'],
+  },
+  indigo: {
+    bg: '#0a0b10',
+    primary: '#818cf8',
+    primaryRgb: '99,102,241',
+    glow1Color: 'rgba(99,102,241,0.10)',
+    glow2Color: 'rgba(14,165,233,0.08)',
+    glow3Color: 'rgba(99,102,241,0.05)',
+    gridLineColor: 'rgba(99,102,241,0.025)',
+    titleGradient: ['#818cf8', '#6366f1', '#0ea5e9'],
+  },
+  rose: {
+    bg: '#0c0a0e',
+    primary: '#fb7185',
+    primaryRgb: '251,113,133',
+    glow1Color: 'rgba(251,113,133,0.10)',
+    glow2Color: 'rgba(251,191,36,0.06)',
+    glow3Color: 'rgba(251,113,133,0.04)',
+    gridLineColor: 'rgba(251,113,133,0.025)',
+    titleGradient: ['#fb7185', '#f43f5e', '#fbbf24'],
+  },
+  amber: {
+    bg: '#0c0b08',
+    primary: '#fbbf24',
+    primaryRgb: '251,191,36',
+    glow1Color: 'rgba(251,191,36,0.10)',
+    glow2Color: 'rgba(99,102,241,0.07)',
+    glow3Color: 'rgba(251,191,36,0.04)',
+    gridLineColor: 'rgba(251,191,36,0.025)',
+    titleGradient: ['#fbbf24', '#f59e0b', '#818cf8'],
+  },
+};
+
+/** Returns inline CSS-vars object to apply on the cover root for a theme. */
+export function themeStyle(theme: ThemeId): React.CSSProperties {
+  const t = THEMES[theme];
+  return {
+    background: t.bg,
+    ['--cv-primary' as string]: t.primary,
+    ['--cv-primary-rgb' as string]: t.primaryRgb,
+    ['--cv-glow-1' as string]: t.glow1Color,
+    ['--cv-glow-2' as string]: t.glow2Color,
+    ['--cv-glow-3' as string]: t.glow3Color,
+    ['--cv-grid-line' as string]: t.gridLineColor,
+  } as React.CSSProperties;
+}
+
+// ============================================================================
+// Layer slot palette — used inside the pipeline variant. Independent of theme.
+// ============================================================================
+
 export const LAYER_PALETTE: Record<
   LayerColor,
   {
@@ -47,7 +138,6 @@ export const LAYER_PALETTE: Record<
     text: string;
     badgeBg: string;
     badgeColor: string;
-    /** When true, the layer gets an extra soft glow — used for the final slot. */
     glow?: boolean;
   }
 > = {
@@ -106,6 +196,53 @@ export const LAYER_PALETTE: Record<
     badgeColor: '#6ee7b7',
     glow: true,
   },
+  // Variants used by EP01 architecture-overview style:
+  entry: {
+    border: 'rgba(56,189,248,0.3)',
+    bg: 'rgba(56,189,248,0.04)',
+    iconBg: 'rgba(56,189,248,0.15)',
+    iconColor: '#38bdf8',
+    text: '#38bdf8',
+    badgeBg: 'rgba(56,189,248,0.08)',
+    badgeColor: '#7dd3fc',
+  },
+  commands: {
+    border: 'rgba(168,85,247,0.3)',
+    bg: 'rgba(168,85,247,0.04)',
+    iconBg: 'rgba(168,85,247,0.15)',
+    iconColor: '#a855f7',
+    text: '#a855f7',
+    badgeBg: 'rgba(168,85,247,0.08)',
+    badgeColor: '#c084fc',
+  },
+  tools: {
+    border: 'rgba(34,197,94,0.3)',
+    bg: 'rgba(34,197,94,0.04)',
+    iconBg: 'rgba(34,197,94,0.15)',
+    iconColor: '#22c55e',
+    text: '#22c55e',
+    badgeBg: 'rgba(34,197,94,0.08)',
+    badgeColor: '#86efac',
+  },
+  engine: {
+    border: 'rgba(244,114,61,0.4)',
+    bg: 'rgba(244,114,61,0.06)',
+    iconBg: 'rgba(244,114,61,0.18)',
+    iconColor: '#f4723d',
+    text: '#f4723d',
+    badgeBg: 'rgba(244,114,61,0.10)',
+    badgeColor: '#fb923c',
+    glow: true,
+  },
+  services: {
+    border: 'rgba(236,72,153,0.3)',
+    bg: 'rgba(236,72,153,0.04)',
+    iconBg: 'rgba(236,72,153,0.15)',
+    iconColor: '#ec4899',
+    text: '#ec4899',
+    badgeBg: 'rgba(236,72,153,0.08)',
+    badgeColor: '#f9a8d4',
+  },
 };
 
 /** Each connector arrow goes from layer[i].color → layer[i+1].color. */
@@ -113,12 +250,46 @@ export function arrowGradient(from: LayerColor, to: LayerColor): string {
   return `linear-gradient(${LAYER_PALETTE[from].border}, ${LAYER_PALETTE[to].border})`;
 }
 
+// ============================================================================
+// State-machine node palette
+// ============================================================================
+
+export const NODE_PALETTE: Record<
+  NodeColor,
+  {border: string; bg: string; text: string}
+> = {
+  primary: {
+    border: 'rgba(99,102,241,0.4)',
+    bg: 'rgba(99,102,241,0.08)',
+    text: '#818cf8',
+  },
+  success: {
+    border: 'rgba(52,211,153,0.4)',
+    bg: 'rgba(52,211,153,0.06)',
+    text: '#34d399',
+  },
+  warning: {
+    border: 'rgba(251,191,36,0.4)',
+    bg: 'rgba(251,191,36,0.06)',
+    text: '#fbbf24',
+  },
+  danger: {
+    border: 'rgba(251,146,60,0.3)',
+    bg: 'rgba(251,146,60,0.05)',
+    text: '#fb923c',
+  },
+  final: {
+    border: 'rgba(167,139,250,0.4)',
+    bg: 'rgba(167,139,250,0.08)',
+    text: '#a78bfa',
+  },
+};
+
 export const FONTS = {
   cn: '"Noto Sans SC", sans-serif',
   mono: '"JetBrains Mono", monospace',
 } as const;
 
-/** Available export resolutions. */
 export interface ResolutionOption {
   label: string;
   scale: number;

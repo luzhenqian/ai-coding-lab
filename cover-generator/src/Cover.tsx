@@ -1,6 +1,7 @@
 import {forwardRef, useMemo} from 'react';
+import {CoverStateMachine} from './CoverStateMachine';
+import {LAYER_PALETTE, THEMES, arrowGradient, themeStyle} from './lib/design-tokens';
 import type {CoverContent, LayerItem} from './lib/types';
-import {LAYER_PALETTE, arrowGradient} from './lib/design-tokens';
 import './styles/cover.css';
 
 interface CoverProps {
@@ -9,10 +10,8 @@ interface CoverProps {
 
 /**
  * The cover canvas — fixed at 1280×720, all positioning hard-coded so
- * exported PNG is pixel-stable across episodes.
- *
- * Wraps with forwardRef so the parent can grab the DOM node and feed it
- * to html2canvas at export time.
+ * exported PNG is pixel-stable across episodes. Theme and variant are
+ * driven by `content.theme` and `content.variant`.
  */
 export const Cover = forwardRef<HTMLDivElement, CoverProps>(function Cover(
   {content},
@@ -26,17 +25,21 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(function Cover(
     subtitleLine1,
     subtitleLine2,
     stats,
-    layers,
     techTags,
     ghostCodeTop,
     ghostCodeBottom,
+    theme,
   } = content;
 
-  // Pre-compute the inline styles for each layer card so the DOM stays clean.
-  const layerStyles = useMemo(() => layers.map(l => buildLayerStyle(l)), [layers]);
+  const themedRoot = useMemo(() => themeStyle(theme), [theme]);
+  const themeTokens = THEMES[theme];
 
   return (
-    <div className="cover" ref={ref}>
+    <div
+      className={`cover theme-${theme}`}
+      ref={ref}
+      style={themedRoot}
+    >
       <div className="bg-grid" />
       <div className="bg-glow-1" />
       <div className="bg-glow-2" />
@@ -64,8 +67,17 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(function Cover(
         <div className="ep-number">{episode}</div>
 
         <div className="main-title">
-          <HighlightSvg text={titleHighlight} />
-          {titleRest}
+          <HighlightSvg
+            text={titleHighlight}
+            gradientStops={themeTokens.titleGradient}
+            gradientId={`title-grad-${theme}`}
+          />
+          {titleRest.split('\n').map((line, i, arr) => (
+            <span key={i}>
+              {line}
+              {i < arr.length - 1 && <br />}
+            </span>
+          ))}
         </div>
 
         <div className="subtitle">
@@ -92,41 +104,17 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(function Cover(
         </div>
       </div>
 
-      {/* ============== RIGHT PIPELINE ============== */}
-      <div className="shield-area">
-        {layers.map((layer, i) => {
-          const styles = layerStyles[i];
-          const isLast = i === layers.length - 1;
-          return (
-            <div key={i}>
-              <div className="perm-layer" style={styles.layerStyle}>
-                <div className="perm-icon" style={styles.iconStyle}>
-                  {layer.icon}
-                </div>
-                <div className="perm-info">
-                  <div className="perm-name" style={{color: styles.text}}>
-                    {layer.layer}
-                  </div>
-                  <div className="perm-desc" style={{color: styles.text}}>
-                    {layer.desc}
-                  </div>
-                </div>
-                <div className="perm-badge" style={styles.badgeStyle}>
-                  {layer.badge}
-                </div>
-              </div>
-              {!isLast && (
-                <div
-                  className="perm-arrow"
-                  style={{
-                    background: arrowGradient(layer.color, layers[i + 1].color),
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {/* ============== RIGHT SIDE ============== */}
+      {content.variant === 'pipeline' ? (
+        <PipelineSide layers={content.layers} />
+      ) : (
+        <CoverStateMachine
+          nodes={content.stateNodes}
+          edges={content.stateEdges}
+          streamingLines={content.streamingLines}
+          yieldBadge={content.yieldBadge}
+        />
+      )}
 
       {/* ============== BOTTOM TAGS ============== */}
       <div className="bottom-bar">
@@ -140,14 +128,97 @@ export const Cover = forwardRef<HTMLDivElement, CoverProps>(function Cover(
   );
 });
 
-/**
- * The highlighted CN word in the title — rendered via inline SVG with a
- * linearGradient so the gradient text effect is preserved when html2canvas
- * rasterizes the DOM (CSS background-clip:text fails inside html2canvas).
- */
-function HighlightSvg({text}: {text: string}) {
-  // Approximate width based on character count — CN chars are roughly 54px wide
-  // at this size. Add some padding so the SVG canvas doesn't crop the glyphs.
+// ----------------------------------------------------------------------------
+// Pipeline variant — stack of layer cards with arrow connectors.
+// ----------------------------------------------------------------------------
+
+function PipelineSide({layers}: {layers: LayerItem[]}) {
+  const layerStyles = useMemo(() => layers.map(l => buildLayerStyle(l)), [layers]);
+
+  return (
+    <div className="shield-area">
+      {layers.map((layer, i) => {
+        const styles = layerStyles[i];
+        const isLast = i === layers.length - 1;
+        const usesChips = !!layer.modules;
+        return (
+          <div key={i}>
+            {usesChips ? (
+              <div className="arch-layer" style={styles.layerStyle}>
+                <div
+                  className="arch-layer-label"
+                  style={{color: styles.text}}
+                >
+                  {layer.layer}
+                </div>
+                <div className="arch-modules">
+                  {layer.modules!.map((m, j) => (
+                    <span
+                      key={j}
+                      className="arch-mod"
+                      style={{
+                        color: styles.badgeText,
+                        background: styles.badgeBg,
+                        borderColor: styles.badgeBorder,
+                      }}
+                    >
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="perm-layer" style={styles.layerStyle}>
+                {layer.icon && (
+                  <div className="perm-icon" style={styles.iconStyle}>
+                    {layer.icon}
+                  </div>
+                )}
+                <div className="perm-info">
+                  <div className="perm-name" style={{color: styles.text}}>
+                    {layer.layer}
+                  </div>
+                  {layer.desc && (
+                    <div className="perm-desc" style={{color: styles.text}}>
+                      {layer.desc}
+                    </div>
+                  )}
+                </div>
+                {layer.badge && (
+                  <div className="perm-badge" style={styles.badgeStyle}>
+                    {layer.badge}
+                  </div>
+                )}
+              </div>
+            )}
+            {!isLast && (
+              <div
+                className="perm-arrow"
+                style={{
+                  background: arrowGradient(layer.color, layers[i + 1].color),
+                }}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// Highlighted title word — inline SVG with theme gradient stops.
+// ----------------------------------------------------------------------------
+
+function HighlightSvg({
+  text,
+  gradientStops,
+  gradientId,
+}: {
+  text: string;
+  gradientStops: [string, string, string];
+  gradientId: string;
+}) {
   const charCount = Array.from(text).length;
   const width = Math.max(charCount * 56, 100);
   return (
@@ -158,10 +229,10 @@ function HighlightSvg({text}: {text: string}) {
       style={{width: `${width}px`}}
     >
       <defs>
-        <linearGradient id="cover-title-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#34d399" />
-          <stop offset="50%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#f87171" />
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor={gradientStops[0]} />
+          <stop offset="50%" stopColor={gradientStops[1]} />
+          <stop offset="100%" stopColor={gradientStops[2]} />
         </linearGradient>
       </defs>
       <text
@@ -171,7 +242,7 @@ function HighlightSvg({text}: {text: string}) {
         fontWeight={900}
         fontSize={54}
         letterSpacing={-1}
-        fill="url(#cover-title-grad)"
+        fill={`url(#${gradientId})`}
       >
         {text}
       </text>
@@ -187,7 +258,7 @@ function buildLayerStyle(layer: LayerItem) {
   };
   if (palette.glow) {
     layerStyle.boxShadow =
-      '0 0 25px rgba(16,185,129,0.08), inset 0 0 25px rgba(16,185,129,0.02)';
+      `0 0 25px rgba(${rgbFromHex(palette.iconColor)}, 0.10), inset 0 0 25px rgba(${rgbFromHex(palette.iconColor)}, 0.03)`;
   }
   return {
     layerStyle,
@@ -200,5 +271,17 @@ function buildLayerStyle(layer: LayerItem) {
       background: palette.badgeBg,
       color: palette.badgeColor,
     } as React.CSSProperties,
+    badgeBg: palette.badgeBg,
+    badgeBorder: palette.border,
+    badgeText: palette.badgeColor,
   };
+}
+
+/** Best-effort #rrggbb -> "r,g,b" for use in rgba(). Assumes 6-char hex. */
+function rgbFromHex(hex: string): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `${r},${g},${b}`;
 }
