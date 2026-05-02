@@ -90,11 +90,19 @@ async function run(input: Record<string, string>, emit: EmitFn) {
     {
       maxSteps: 10,
       delegation: {
-        onDelegationStart: ({ primitiveId }) => {
+        onDelegationStart: ({ primitiveId, prompt }) => {
           emit({ type: 'edge:active', edgeId: `supervisor-to-${primitiveId}` })
           emit({ type: 'node:active', nodeId: primitiveId })
+          if (prompt) {
+            const preview = typeof prompt === 'string' ? prompt.slice(0, 150) : JSON.stringify(prompt).slice(0, 150)
+            emit({ type: 'stream:chunk', nodeId: primitiveId, text: `[${primitiveId}] ${preview}...\n` })
+          }
         },
-        onDelegationComplete: ({ primitiveId }) => {
+        onDelegationComplete: ({ primitiveId, result: delegationResult }) => {
+          if (delegationResult) {
+            const text = typeof delegationResult === 'string' ? delegationResult : JSON.stringify(delegationResult)
+            emit({ type: 'stream:chunk', nodeId: primitiveId, text: text.slice(0, 500) + (text.length > 500 ? '...' : '') + '\n' })
+          }
           emit({ type: 'node:complete', nodeId: primitiveId })
           emit({ type: 'edge:complete', edgeId: `supervisor-to-${primitiveId}` })
         },

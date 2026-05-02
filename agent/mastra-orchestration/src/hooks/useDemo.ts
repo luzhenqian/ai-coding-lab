@@ -119,6 +119,8 @@ export function useDemo() {
 
   const stop = useCallback(() => {
     abortRef.current?.abort()
+    setNodeStates({})
+    setEdgeStates({})
     setRunning(false)
     addLog('node:error', '已手动停止', 'log-error')
   }, [])
