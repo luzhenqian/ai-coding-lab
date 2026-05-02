@@ -16,10 +16,10 @@ export function OutputPanel({ logs, result }: Props) {
         {logs.map((log, i) => (
           <div key={i} className={log.className}>{log.text}</div>
         ))}
-        {result && (
+        {result != null && (
           <div className="log-result">
             {'\n=== Result ===\n'}
-            {JSON.stringify(result, null, 2)}
+            {JSON.stringify(result, null, 2) as string}
           </div>
         )}
       </pre>

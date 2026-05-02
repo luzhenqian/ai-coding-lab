@@ -28,7 +28,7 @@ export function FlowCanvas({ demoId, nodeStates, edgeStates }: Props) {
     const e: Edge[] = layout.edges.map((edge) => ({
       ...edge,
       type: 'animated',
-      data: { ...edge.data, status: edgeStates[edge.id] || 'idle' },
+      data: { status: edgeStates[edge.id] || 'idle' },
     }))
 
     return { nodes: n, edges: e }
