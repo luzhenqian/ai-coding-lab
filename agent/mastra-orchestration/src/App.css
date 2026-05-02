@@ -262,6 +262,13 @@ body {
 .output-panel .log-active { color: #fbbf24; }
 .output-panel .log-complete { color: #4ade80; }
 .output-panel .log-error { color: #f87171; }
+.output-panel .log-stream {
+  color: var(--text-secondary);
+  padding: 6px 0;
+  border-left: 2px solid rgba(52, 211, 153, 0.3);
+  padding-left: 10px;
+  margin: 4px 0;
+}
 .output-panel .log-result { color: var(--text); font-weight: 500; }
 
 /* ===== React Flow Overrides ===== */

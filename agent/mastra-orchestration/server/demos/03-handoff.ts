@@ -64,14 +64,19 @@ async function run(input: Record<string, string>, emit: EmitFn) {
   emit({ type: 'node:active', nodeId: specialistId })
 
   const specialist = specialists[route] || techAgent
-  const response = await specialist.generate([
+  const stream = await specialist.stream([
     { role: 'user', content: `Customer issue (classified as ${route}): ${summary}\n\nOriginal message: ${message}` },
   ])
+  let responseText = ''
+  for await (const chunk of stream.textStream) {
+    responseText += chunk
+    emit({ type: 'stream:chunk', nodeId: specialistId, text: chunk })
+  }
 
   emit({ type: 'edge:complete', edgeId: `triage-to-${specialistId}` })
-  emit({ type: 'node:complete', nodeId: specialistId, output: { preview: response.text.slice(0, 150) } })
+  emit({ type: 'node:complete', nodeId: specialistId })
 
-  return { route, summary, response: response.text }
+  return { route, summary, response: responseText }
 }
 
 export const handoffDemo: Demo = {

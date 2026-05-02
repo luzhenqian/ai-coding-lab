@@ -6,4 +6,4 @@ const openai = createOpenAI({
   baseURL: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
 })
 
-export const model = openai(process.env.MODEL_ID || 'gpt-5.5')
+export const model = openai.chat(process.env.MODEL_ID || 'gpt-5.5')

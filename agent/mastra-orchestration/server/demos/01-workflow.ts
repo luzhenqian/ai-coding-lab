@@ -25,23 +25,38 @@ const socialAgent = new Agent({
 {"twitter": "Tweet under 280 characters with hashtags", "xiaohongshu": "小红书 post with emoji-rich hook and body, under 500 chars"}`,
 })
 
+async function streamAgent(
+  agent: Agent,
+  messages: { role: 'user'; content: string }[],
+  nodeId: string,
+  emit: EmitFn,
+): Promise<string> {
+  const result = await agent.stream(messages)
+  let fullText = ''
+  for await (const chunk of result.textStream) {
+    fullText += chunk
+    emit({ type: 'stream:chunk', nodeId, text: chunk })
+  }
+  return fullText
+}
+
 async function run(input: Record<string, string>, emit: EmitFn) {
   const { topic } = input
 
   // Step 1: Write draft
   emit({ type: 'node:active', nodeId: 'writer' })
-  const draft = await writerAgent.generate([{ role: 'user', content: `Write a blog post about: ${topic}` }])
-  emit({ type: 'node:complete', nodeId: 'writer', output: { preview: draft.text.slice(0, 150) + '...' } })
+  const draft = await streamAgent(writerAgent, [{ role: 'user', content: `Write a blog post about: ${topic}` }], 'writer', emit)
+  emit({ type: 'node:complete', nodeId: 'writer' })
 
   // Step 2: SEO optimization
   emit({ type: 'edge:active', edgeId: 'writer-to-seo' })
   emit({ type: 'node:active', nodeId: 'seo' })
-  const seoResult = await seoAgent.generate([{ role: 'user', content: draft.text }])
+  const seoText = await streamAgent(seoAgent, [{ role: 'user', content: draft }], 'seo', emit)
   let seo: { title: string; keywords: string[]; metaDescription: string; optimizedArticle: string }
   try {
-    seo = JSON.parse(seoResult.text)
+    seo = JSON.parse(seoText)
   } catch {
-    seo = { title: topic, keywords: [], metaDescription: '', optimizedArticle: draft.text }
+    seo = { title: topic, keywords: [], metaDescription: '', optimizedArticle: draft }
   }
   emit({ type: 'edge:complete', edgeId: 'writer-to-seo' })
   emit({ type: 'node:complete', nodeId: 'seo', output: { title: seo.title, keywords: seo.keywords } })
@@ -49,10 +64,10 @@ async function run(input: Record<string, string>, emit: EmitFn) {
   // Step 3: Social media posts
   emit({ type: 'edge:active', edgeId: 'seo-to-social' })
   emit({ type: 'node:active', nodeId: 'social' })
-  const socialResult = await socialAgent.generate([{ role: 'user', content: seo.optimizedArticle }])
+  const socialText = await streamAgent(socialAgent, [{ role: 'user', content: seo.optimizedArticle }], 'social', emit)
   let social: { twitter: string; xiaohongshu: string }
   try {
-    social = JSON.parse(socialResult.text)
+    social = JSON.parse(socialText)
   } catch {
     social = { twitter: '', xiaohongshu: '' }
   }

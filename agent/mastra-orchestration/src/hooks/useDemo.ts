@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef } from 'react'
 import type { SSEEvent, NodeStatus, EdgeStatus } from '../types'
 
-interface LogEntry {
+export interface LogEntry {
   type: string
+  nodeId?: string
   text: string
   className: string
 }
@@ -15,23 +16,23 @@ export function useDemo() {
   const [running, setRunning] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
 
-  const addLog = (type: string, text: string, className: string) => {
-    setLogs((prev) => [...prev, { type, text, className }])
+  const addLog = (type: string, text: string, className: string, nodeId?: string) => {
+    setLogs((prev) => [...prev, { type, text, className, nodeId }])
   }
 
   const handleEvent = useCallback((event: SSEEvent) => {
     switch (event.type) {
       case 'node:active':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'active' }))
-        addLog(event.type, `⚡ ${event.nodeId} started`, 'log-active')
+        addLog(event.type, `⚡ ${event.nodeId}`, 'log-active', event.nodeId)
         break
       case 'node:complete':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'complete' }))
-        addLog(event.type, `✅ ${event.nodeId} complete`, 'log-complete')
+        addLog(event.type, `✅ ${event.nodeId}`, 'log-complete', event.nodeId)
         break
       case 'node:error':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'error' }))
-        addLog(event.type, `❌ ${event.nodeId}: ${event.error}`, 'log-error')
+        addLog(event.type, `❌ ${event.nodeId}: ${event.error}`, 'log-error', event.nodeId)
         break
       case 'edge:active':
         setEdgeStates((prev) => ({ ...prev, [event.edgeId]: 'active' }))
@@ -40,7 +41,15 @@ export function useDemo() {
         setEdgeStates((prev) => ({ ...prev, [event.edgeId]: 'complete' }))
         break
       case 'stream:chunk':
-        addLog(event.type, event.text, '')
+        setLogs((prev) => {
+          const last = prev[prev.length - 1]
+          if (last && last.type === 'stream:chunk' && last.nodeId === event.nodeId) {
+            const updated = [...prev]
+            updated[updated.length - 1] = { ...last, text: last.text + event.text }
+            return updated
+          }
+          return [...prev, { type: 'stream:chunk', text: event.text, className: 'log-stream', nodeId: event.nodeId }]
+        })
         break
       case 'run:complete':
         setResult(event.result)
@@ -92,7 +101,7 @@ export function useDemo() {
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        addLog('error', `Connection error: ${err}`, 'log-error')
+        addLog('error', `连接错误: ${err}`, 'log-error')
       }
     } finally {
       setRunning(false)
