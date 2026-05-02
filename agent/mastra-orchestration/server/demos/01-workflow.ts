@@ -1,7 +1,17 @@
+/**
+ * 01-Workflow: 博客发布流水线
+ *
+ * 编排模式: Workflow（工作流）
+ * 核心特征: 路径写死在代码里，步骤严格串行，每步输出是下一步的输入
+ * 流程: 写作 Agent → SEO Agent → 社媒 Agent
+ */
 import { Agent } from '@mastra/core/agent'
 import { model } from '../config.js'
 import type { Demo, EmitFn } from '../types.js'
 
+// --- 定义三个专职 Agent，各自负责流水线中的一个环节 ---
+
+// 写作 Agent: 根据主题生成博客初稿
 const writerAgent = new Agent({
   id: 'writer',
   name: 'writer',
@@ -9,6 +19,7 @@ const writerAgent = new Agent({
   instructions: `You are a professional blog writer. Given a topic, write a blog post of about 300 words in Markdown format. Include a compelling title, clear structure with headings, and actionable insights. Write in a conversational yet informative tone.`,
 })
 
+// SEO Agent: 优化标题/关键词/meta，输出结构化 JSON
 const seoAgent = new Agent({
   id: 'seo',
   name: 'seo',
@@ -17,6 +28,7 @@ const seoAgent = new Agent({
 {"title": "SEO-optimized title", "keywords": ["keyword1", "keyword2", ...], "metaDescription": "150-char meta description", "optimizedArticle": "the full article with SEO improvements"}`,
 })
 
+// 社媒 Agent: 根据文章生成各平台的发布文案
 const socialAgent = new Agent({
   id: 'social',
   name: 'social',
@@ -25,6 +37,7 @@ const socialAgent = new Agent({
 {"twitter": "Tweet under 280 characters with hashtags", "xiaohongshu": "小红书 post with emoji-rich hook and body, under 500 chars"}`,
 })
 
+// 流式调用 Agent 并实时推送文本到前端
 async function streamAgent(
   agent: Agent,
   messages: { role: 'user'; content: string }[],
@@ -40,15 +53,20 @@ async function streamAgent(
   return fullText
 }
 
+/**
+ * Workflow 模式的核心逻辑:
+ * 三步严格串行 — 代码决定执行顺序，不需要 LLM 判断"下一步该干什么"
+ * 每个 Agent 的输出直接传给下一个 Agent 作为输入
+ */
 async function run(input: Record<string, string>, emit: EmitFn) {
   const { topic } = input
 
-  // Step 1: Write draft
+  // 第一步: 写作 Agent 生成初稿
   emit({ type: 'node:active', nodeId: 'writer' })
   const draft = await streamAgent(writerAgent, [{ role: 'user', content: `Write a blog post about: ${topic}` }], 'writer', emit)
   emit({ type: 'node:complete', nodeId: 'writer' })
 
-  // Step 2: SEO optimization
+  // 第二步: SEO Agent 优化文章，输出结构化数据
   emit({ type: 'edge:active', edgeId: 'writer-to-seo' })
   emit({ type: 'node:active', nodeId: 'seo' })
   const seoText = await streamAgent(seoAgent, [{ role: 'user', content: draft }], 'seo', emit)
@@ -56,12 +74,13 @@ async function run(input: Record<string, string>, emit: EmitFn) {
   try {
     seo = JSON.parse(seoText)
   } catch {
+    // JSON 解析失败时降级: 保留原始初稿
     seo = { title: topic, keywords: [], metaDescription: '', optimizedArticle: draft }
   }
   emit({ type: 'edge:complete', edgeId: 'writer-to-seo' })
   emit({ type: 'node:complete', nodeId: 'seo', output: { title: seo.title, keywords: seo.keywords } })
 
-  // Step 3: Social media posts
+  // 第三步: 社媒 Agent 生成多平台发布文案
   emit({ type: 'edge:active', edgeId: 'seo-to-social' })
   emit({ type: 'node:active', nodeId: 'social' })
   const socialText = await streamAgent(socialAgent, [{ role: 'user', content: seo.optimizedArticle }], 'social', emit)

@@ -1,6 +1,15 @@
+/**
+ * 04-Council: 代码审查委员会
+ *
+ * 编排模式: Council（议会模式）
+ * 核心特征: 多个 Agent 并行执行同一任务，各自独立产出，最后由汇总 Agent 聚合
+ * 适用场景: 需要多视角评估的高风险决策（审查、评审、风控）
+ */
 import { Agent } from '@mastra/core/agent'
 import { model } from '../config.js'
 import type { Demo, EmitFn } from '../types.js'
+
+// --- 三个审查 Agent，各自从不同维度评审同一段代码 ---
 
 const securityAgent = new Agent({
   id: 'security-reviewer',
@@ -44,6 +53,7 @@ Respond with ONLY valid JSON (no markdown code fences):
 {"score": 1-10, "issues": ["issue1", "issue2"], "suggestion": "overall readability recommendation"}`,
 })
 
+// 汇总 Agent: 综合三份独立评审，给出最终裁决
 const synthesisAgent = new Agent({
   id: 'synthesis',
   name: 'Synthesis Agent',
@@ -68,13 +78,23 @@ function parseReview(text: string): ReviewResult {
   }
 }
 
+/**
+ * Council 模式的核心逻辑:
+ * 1. Promise.all 并行启动三个审查 Agent — 各自独立，互不干扰
+ * 2. 三份评审结果全部到齐后，交给汇总 Agent 做最终裁决
+ *
+ * 优势: 不同视角捕捉不同问题，质量高于单一 Agent
+ * 代价: 3 倍 token 消耗（三个 Agent 同时工作）
+ */
 async function run(input: Record<string, string>, emit: EmitFn) {
   const { code } = input
 
+  // 三个审查 Agent 同时启动 — 这是 Council 的标志性特征
   emit({ type: 'node:active', nodeId: 'security-reviewer' })
   emit({ type: 'node:active', nodeId: 'performance-reviewer' })
   emit({ type: 'node:active', nodeId: 'readability-reviewer' })
 
+  // Promise.all: 并行执行，等待所有审查完成
   const [securityResult, performanceResult, readabilityResult] = await Promise.all([
     securityAgent.generate([{ role: 'user', content: `Review this code for security:\n\n${code}` }]).then((r) => {
       emit({ type: 'node:complete', nodeId: 'security-reviewer' })
@@ -90,11 +110,13 @@ async function run(input: Record<string, string>, emit: EmitFn) {
     }),
   ])
 
+  // 三份评审汇聚到汇总 Agent
   emit({ type: 'edge:active', edgeId: 'reviewers-to-synthesis' })
   emit({ type: 'edge:active', edgeId: 'perf-to-synthesis' })
   emit({ type: 'edge:active', edgeId: 'read-to-synthesis' })
   emit({ type: 'node:active', nodeId: 'synthesis' })
 
+  // 将三份评审结果拼装成汇总 Agent 的输入
   const synthesisInput = `Security Review (score: ${securityResult.score}/10):
 Issues: ${securityResult.issues.join('; ')}
 Suggestion: ${securityResult.suggestion}
