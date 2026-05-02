@@ -24,15 +24,15 @@ export function useDemo() {
     switch (event.type) {
       case 'node:active':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'active' }))
-        addLog(event.type, `⚡ ${event.nodeId}`, 'log-active', event.nodeId)
+        addLog(event.type, event.nodeId, 'log-active', event.nodeId)
         break
       case 'node:complete':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'complete' }))
-        addLog(event.type, `✅ ${event.nodeId}`, 'log-complete', event.nodeId)
+        addLog(event.type, event.nodeId, 'log-complete', event.nodeId)
         break
       case 'node:error':
         setNodeStates((prev) => ({ ...prev, [event.nodeId]: 'error' }))
-        addLog(event.type, `❌ ${event.nodeId}: ${event.error}`, 'log-error', event.nodeId)
+        addLog(event.type, `${event.nodeId}: ${event.error}`, 'log-error', event.nodeId)
         break
       case 'edge:active':
         setEdgeStates((prev) => ({ ...prev, [event.edgeId]: 'active' }))
@@ -101,7 +101,7 @@ export function useDemo() {
       }
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
-        addLog('error', `连接错误: ${err}`, 'log-error')
+        addLog('error', `${err}`, 'log-error')
       }
     } finally {
       setRunning(false)
