@@ -92,7 +92,7 @@ const metadata: VideoMetadata = {
   duration: '7:09',
   summary:
     '一个 Agent 装不下复杂任务时就要拆成多个 Agent — 而拆完之后立刻冒出一个核心问题：谁来决定下一步谁干活？这一期把 Supervisor / Workflow / Handoff / Council 四种主流编排模式一次讲清楚，并展示真实项目里它们如何混着用。',
-  videoPath: 'motion-canvas-videos/agent-orchestration/output/project.mp4',
+  videoPath: 'creative/motion-canvas-videos/agent-orchestration/output/project.mp4',
 
   bilibili: {
     title: 'Agent 编排的四种模式：到底谁说了算？| 7 分钟看懂工业级多 Agent 系统',

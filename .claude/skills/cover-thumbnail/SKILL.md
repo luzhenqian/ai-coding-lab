@@ -1,6 +1,6 @@
 ---
 name: cover-thumbnail
-description: Use when producing the deliverables for a video episode — the cover thumbnail AND/OR the per-platform marketing copy (Bilibili / YouTube / 小红书 / 视频号 titles, descriptions, tags). Both live as a single "preset" in cover-generator/. Locks the channel's visual + editorial style. Always edit via the React app (cover-generator), never hand-roll HTML or copy-paste-edit per-platform copy from scratch.
+description: Use when producing the deliverables for a video episode — the cover thumbnail AND/OR the per-platform marketing copy (Bilibili / YouTube / 小红书 / 视频号 titles, descriptions, tags). Both live as a single "preset" in creative/cover-generator/. Locks the channel's visual + editorial style. Always edit via the React app (cover-generator), never hand-roll HTML or copy-paste-edit per-platform copy from scratch.
 ---
 
 # Episode Deliverables · House Style
@@ -17,7 +17,7 @@ If the user just wants a generic graphic that does NOT need to match the channel
 
 ## The rule
 
-**Never hand-roll a new HTML/CSS file or per-platform marketing copy from scratch.** Every episode is one bundle, and bundles live as preset files under `cover-generator/src/lib/presets/`. Each preset exports both:
+**Never hand-roll a new HTML/CSS file or per-platform marketing copy from scratch.** Every episode is one bundle, and bundles live as preset files under `creative/cover-generator/src/lib/presets/`. Each preset exports both:
 
 - `cover` — `CoverContent` for the thumbnail
 - `metadata` — `VideoMetadata` covering Bilibili / YouTube / 小红书 / 视频号 titles, descriptions, tags
@@ -28,7 +28,7 @@ The app's top-bar dropdown switches between bundles. The Tab toggle inside the a
 
 1. **Pick a theme and variant first.** Theme = chrome accent. Variant = right-side structure. Don't reuse the previous episode's theme — variation is the point.
 
-2. **Create** `cover-generator/src/lib/presets/ep0X-<slug>.ts`. Export both halves:
+2. **Create** `creative/cover-generator/src/lib/presets/ep0X-<slug>.ts`. Export both halves:
    ```ts
    import type {CoverContent, VideoMetadata} from '../types';
 
@@ -44,7 +44,7 @@ The app's top-bar dropdown switches between bundles. The Tab toggle inside the a
      topic: '<theme>',
      duration: 'm:ss',
      summary: '<one-line, platform-neutral>',
-     videoPath: 'motion-canvas-videos/.../output/project.mp4',
+     videoPath: 'creative/motion-canvas-videos/.../output/project.mp4',
      bilibili: { title, description, tags, category? },
      youtube:  { title, description, tags, hashtags },
      xiaohongshu: { title, body, topics },
@@ -54,7 +54,7 @@ The app's top-bar dropdown switches between bundles. The Tab toggle inside the a
    export const ep0XSlug = {cover, metadata};
    ```
 
-2. **Register** it in `cover-generator/src/lib/presets/index.ts` — prepend to `PRESETS` so it becomes the default:
+2. **Register** it in `creative/cover-generator/src/lib/presets/index.ts` — prepend to `PRESETS` so it becomes the default:
    ```ts
    import {ep0XSlug} from './ep0X-<slug>';
 
@@ -213,7 +213,7 @@ When user asks for a new episode bundle:
    - Whether the user wants you to draft platform copy (or only the cover and they'll fill copy later)
    If anything load-bearing is missing, ask before editing.
 
-2. **Create the preset** at `cover-generator/src/lib/presets/ep0X-<slug>.ts` exporting `{cover, metadata}` and **register** it in `presets/index.ts`.
+2. **Create the preset** at `creative/cover-generator/src/lib/presets/ep0X-<slug>.ts` exporting `{cover, metadata}` and **register** it in `presets/index.ts`.
 
 3. **For platform copy**: respect the per-platform voice table above. Don't reuse the Bilibili description on YouTube — translate idea, recast tone. Keep `summary` as the source of truth so future edits stay consistent.
 
