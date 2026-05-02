@@ -224,10 +224,11 @@ body {
 
 .input-panel textarea { min-height: 60px; }
 
-.run-btn {
+.run-btn, .stop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 24px;
-  background: var(--accent);
-  color: #000;
   border: none;
   border-radius: var(--radius-sm);
   font-weight: 600;
@@ -235,20 +236,32 @@ body {
   font-size: 13px;
   font-family: 'Inter', sans-serif;
   transition: all 0.15s ease;
+}
+
+.run-btn {
+  background: var(--accent);
+  color: #000;
   box-shadow: 0 0 12px var(--accent-glow);
 }
 
-.run-btn:hover:not(:disabled) {
+.run-btn:hover {
   background: #4ade80;
   box-shadow: 0 0 20px rgba(74, 222, 128, 0.25);
   transform: translateY(-1px);
 }
 
-.run-btn:active:not(:disabled) {
-  transform: translateY(0);
+.run-btn:active { transform: translateY(0); }
+
+.stop-btn {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
 }
 
-.run-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.stop-btn:hover {
+  background: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.5);
+}
 
 .log-list {
   font-size: 12px;

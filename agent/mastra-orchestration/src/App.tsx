@@ -11,7 +11,7 @@ import type { DemoMeta } from './types'
 export default function App() {
   const [demoList, setDemoList] = useState<DemoMeta[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
-  const { nodeStates, edgeStates, logs, result, running, runDemo, reset } = useDemo()
+  const { nodeStates, edgeStates, logs, result, running, runDemo, reset, stop } = useDemo()
 
   useEffect(() => {
     fetch('/api/demos')
@@ -39,7 +39,7 @@ export default function App() {
             </div>
           </ReactFlowProvider>
           <div className="panels">
-            <InputPanel demo={selectedDemo} running={running} onRun={(input) => runDemo(selectedId, input)} />
+            <InputPanel demo={selectedDemo} running={running} onRun={(input) => runDemo(selectedId, input)} onStop={stop} />
             <OutputPanel logs={logs} result={result} />
           </div>
         </div>
