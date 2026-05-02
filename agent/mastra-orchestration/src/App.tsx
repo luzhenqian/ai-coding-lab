@@ -27,7 +27,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Mastra Orchestration Demos</h1>
+        <h1>Agent 编排模式实战</h1>
       </header>
       <div className="app-body">
         <DemoSelector demos={demoList} selectedId={selectedId} onSelect={setSelectedId} />

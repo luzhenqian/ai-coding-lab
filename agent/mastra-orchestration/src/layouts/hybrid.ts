@@ -1,11 +1,11 @@
 export const hybridLayout = {
   nodes: [
-    { id: 'parser', position: { x: 250, y: 0 }, data: { label: 'Resume Parser', sublabel: 'Step 1: Workflow' } },
-    { id: 'tech-evaluator', position: { x: 0, y: 150 }, data: { label: 'Tech Skills', sublabel: 'Council' } },
-    { id: 'culture-evaluator', position: { x: 250, y: 150 }, data: { label: 'Culture Fit', sublabel: 'Council' } },
-    { id: 'growth-evaluator', position: { x: 500, y: 150 }, data: { label: 'Growth Potential', sublabel: 'Council' } },
-    { id: 'final-reviewer', position: { x: 250, y: 300 }, data: { label: 'Final Reviewer', sublabel: 'Step 3: Supervisor' } },
-    { id: 'clarification', position: { x: 500, y: 300 }, data: { label: 'Clarification', sublabel: 'Sub-agent' } },
+    { id: 'parser', position: { x: 250, y: 0 }, data: { label: 'Resume Parser', sublabel: '第一步：解析' } },
+    { id: 'tech-evaluator', position: { x: 0, y: 150 }, data: { label: 'Tech Skills', sublabel: '技术能力' } },
+    { id: 'culture-evaluator', position: { x: 250, y: 150 }, data: { label: 'Culture Fit', sublabel: '文化匹配' } },
+    { id: 'growth-evaluator', position: { x: 500, y: 150 }, data: { label: 'Growth Potential', sublabel: '成长潜力' } },
+    { id: 'final-reviewer', position: { x: 250, y: 300 }, data: { label: 'Final Reviewer', sublabel: '终审决策' } },
+    { id: 'clarification', position: { x: 500, y: 300 }, data: { label: 'Clarification', sublabel: '追问补充' } },
   ],
   edges: [
     { id: 'parser-to-council', source: 'parser', target: 'tech-evaluator' },

@@ -132,8 +132,8 @@ export const councilDemo: Demo = {
     name: 'Code Review Committee',
     nameZh: '代码审查委员会',
     pattern: 'Council',
-    description: 'Three agents review code in parallel (security, performance, readability), then a synthesis agent merges the verdicts.',
-    inputs: [{ id: 'code', label: 'Code to Review', type: 'textarea', placeholder: 'Paste code here...' }],
+    description: '三个 Agent 从安全、性能、可读性三个维度并行审查代码，再由汇总 Agent 综合出最终评审意见。',
+    inputs: [{ id: 'code', label: '待审查代码', type: 'textarea', placeholder: '在此粘贴代码...' }],
   },
   run,
 }

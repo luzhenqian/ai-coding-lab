@@ -38,7 +38,7 @@ export function InputPanel({ demo, running, onRun }: Props) {
         </div>
       ))}
       <button className="run-btn" disabled={running} onClick={handleRun}>
-        {running ? 'Running...' : 'Run'}
+        {running ? '运行中...' : '运行'}
       </button>
     </div>
   )

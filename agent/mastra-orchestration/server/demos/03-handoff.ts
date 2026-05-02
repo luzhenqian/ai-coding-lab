@@ -80,8 +80,8 @@ export const handoffDemo: Demo = {
     name: 'Multi-Department Customer Service',
     nameZh: '多部门客服',
     pattern: 'Handoff',
-    description: 'Triage Agent classifies the message and hands off to the right specialist. No supervisor — the current agent decides who takes over.',
-    inputs: [{ id: 'message', label: 'Customer Message', type: 'textarea', placeholder: 'e.g. I was charged twice for my subscription last month' }],
+    description: '分诊 Agent 分类用户消息后，将控制权交给对应的专家 Agent。没有中心调度——当前 Agent 自己决定交棒给谁。',
+    inputs: [{ id: 'message', label: '客户消息', type: 'textarea', placeholder: '例如：上个月我的订阅被重复扣费了' }],
   },
   run,
 }

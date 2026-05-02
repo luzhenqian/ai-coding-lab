@@ -120,15 +120,13 @@ export const supervisorDemo: Demo = {
     name: 'Deep Research Assistant',
     nameZh: '深度调研助手',
     pattern: 'Supervisor',
-    description:
-      'One Supervisor LLM dynamically delegates to Search, Analysis, and Writing agents. The execution path is decided at runtime.',
+    description: '一个 Supervisor LLM 动态调度搜索、分析、写作三个 Agent。执行路径由 LLM 在运行时决定。',
     inputs: [
       {
         id: 'question',
-        label: 'Research Question',
+        label: '调研问题',
         type: 'textarea',
-        placeholder:
-          'e.g. What are the current trends in AI agent frameworks?',
+        placeholder: '例如：AI Agent 框架的最新趋势是什么？',
       },
     ],
   },

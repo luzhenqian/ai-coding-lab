@@ -6,14 +6,14 @@ const demoId = process.argv[2]
 const inputJson = process.argv[3] || '{}'
 
 if (!demoId) {
-  console.log('Usage: npx tsx server/cli.ts <demo-id> [input-json]')
-  console.log('Available demos:', Object.keys(demos).join(', '))
+  console.log('用法：npx tsx server/cli.ts <场景-id> [input-json]')
+  console.log('可用场景：', Object.keys(demos).join(', '))
   process.exit(0)
 }
 
 const demo = demos[demoId]
 if (!demo) {
-  console.error(`Unknown demo: ${demoId}`)
+  console.error(`未知场景：${demoId}`)
   process.exit(1)
 }
 

@@ -68,8 +68,8 @@ export const workflow: Demo = {
     name: 'Blog Publishing Pipeline',
     nameZh: '博客发布流水线',
     pattern: 'Workflow',
-    description: 'Fixed sequential pipeline: Writer → SEO → Social Media. Path is hardcoded — code decides the order.',
-    inputs: [{ id: 'topic', label: 'Blog Topic', type: 'text', placeholder: 'e.g. AI-assisted programming in 2026' }],
+    description: '固定顺序的流水线：写作 → SEO 优化 → 社交媒体。路径写死在代码里，确定性强。',
+    inputs: [{ id: 'topic', label: '博客主题', type: 'text', placeholder: '例如：2026 年 AI 辅助编程的趋势' }],
   },
   run,
 }

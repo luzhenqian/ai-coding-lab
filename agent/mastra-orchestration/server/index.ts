@@ -14,7 +14,7 @@ app.get('/api/demos', (_req, res) => {
 app.post('/api/demos/:id/run', async (req, res) => {
   const demo = demos[req.params.id]
   if (!demo) {
-    res.status(404).json({ error: 'Demo not found' })
+    res.status(404).json({ error: '场景不存在' })
     return
   }
 

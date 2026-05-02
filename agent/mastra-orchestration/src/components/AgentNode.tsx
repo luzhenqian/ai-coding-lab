@@ -40,7 +40,7 @@ export function AgentNode({ data }: NodeProps) {
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{nodeData.sublabel}</div>
       )}
       {isActive && (
-        <div style={{ fontSize: 10, color: '#fbbf24', marginTop: 4 }}>working...</div>
+        <div style={{ fontSize: 10, color: '#fbbf24', marginTop: 4 }}>运行中...</div>
       )}
       <Handle type="source" position={Position.Bottom} style={{ background: borderColor }} />
     </div>

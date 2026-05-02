@@ -18,7 +18,7 @@ export function OutputPanel({ logs, result }: Props) {
         ))}
         {result != null && (
           <div className="log-result">
-            {'\n=== Result ===\n'}
+            {'\n=== 运行结果 ===\n'}
             {JSON.stringify(result, null, 2) as string}
           </div>
         )}

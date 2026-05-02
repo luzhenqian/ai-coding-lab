@@ -162,10 +162,10 @@ export const hybridDemo: Demo = {
     name: 'Hiring Evaluation System',
     nameZh: '招聘评估系统',
     pattern: 'Hybrid (Workflow + Council + Supervisor)',
-    description: 'Workflow pipeline → Council parallel evaluation → Supervisor final review. Three patterns nested in one system.',
+    description: 'Workflow 流水线 → Council 并行评估 → Supervisor 终审。三种编排模式嵌套在一个系统中。',
     inputs: [
-      { id: 'resume', label: 'Resume', type: 'textarea', placeholder: 'Paste candidate resume here...' },
-      { id: 'jobDescription', label: 'Job Description', type: 'textarea', placeholder: 'Paste job description here...' },
+      { id: 'resume', label: '候选人简历', type: 'textarea', placeholder: '在此粘贴简历...' },
+      { id: 'jobDescription', label: '职位描述', type: 'textarea', placeholder: '在此粘贴 JD...' },
     ],
   },
   run,
