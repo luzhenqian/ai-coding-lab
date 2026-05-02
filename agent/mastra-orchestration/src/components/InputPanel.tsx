@@ -12,12 +12,9 @@ export function InputPanel({ demo, running, onRun }: Props) {
 
   if (!demo) return <div className="input-panel" />
 
-  const handleRun = () => {
-    onRun(values)
-  }
-
   return (
     <div className="input-panel">
+      <div className="panel-title">输入</div>
       {demo.inputs.map((inp) => (
         <div key={inp.id}>
           <label>{inp.label}</label>
@@ -37,7 +34,7 @@ export function InputPanel({ demo, running, onRun }: Props) {
           )}
         </div>
       ))}
-      <button className="run-btn" disabled={running} onClick={handleRun}>
+      <button className="run-btn" disabled={running} onClick={() => onRun(values)}>
         {running ? '运行中...' : '运行'}
       </button>
     </div>

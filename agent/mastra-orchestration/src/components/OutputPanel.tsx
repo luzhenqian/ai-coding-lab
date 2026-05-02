@@ -12,6 +12,7 @@ interface Props {
 export function OutputPanel({ logs, result }: Props) {
   return (
     <div className="output-panel">
+      <div className="panel-title">输出</div>
       <pre>
         {logs.map((log, i) => (
           <div key={i} className={log.className}>{log.text}</div>

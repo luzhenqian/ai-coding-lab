@@ -28,6 +28,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>Agent 编排模式实战</h1>
+        <span className="header-badge">Mastra</span>
       </header>
       <div className="app-body">
         <DemoSelector demos={demoList} selectedId={selectedId} onSelect={setSelectedId} />
