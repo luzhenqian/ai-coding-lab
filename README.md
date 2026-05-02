@@ -62,6 +62,7 @@ AI Agent 实战项目。
 | 1 | [仓库分析器](./agent/repo-analyzer/) | ⭐⭐⭐ 进阶 | 一个分析代码仓库的 AI Agent |
 | 2 | [JobSpy 求职分析助手](./agent/job-spy/) | ⭐⭐⭐ 进阶 | AI 解析 JD + 匹配简历，链式分析 vs 单次分析对比，输出求职策略 |
 | 3 | [ResearchHub 多源调研助手](./agent/research-hub/) | ⭐⭐⭐ 进阶 | AI 四路并行调研，输入公司名即出分析报告（并行化模式实战） |
+| 4 | [Agent 编排模式实战](./agent/mastra-orchestration/) | ⭐⭐⭐⭐ 高级 | 用 Mastra 实现 4 种 Agent 编排模式（Supervisor / Workflow / Handoff / Council）+ 混合编排，配套 React Flow 可视化 |
 
 ## 适合谁
 
