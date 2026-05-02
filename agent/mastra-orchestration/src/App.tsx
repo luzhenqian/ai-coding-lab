@@ -11,7 +11,7 @@ import type { DemoMeta } from './types'
 export default function App() {
   const [demoList, setDemoList] = useState<DemoMeta[]>([])
   const [selectedId, setSelectedId] = useState<string>('')
-  const { nodeStates, edgeStates, logs, result, running, runDemo } = useDemo()
+  const { nodeStates, edgeStates, logs, result, running, runDemo, reset } = useDemo()
 
   useEffect(() => {
     fetch('/api/demos')
@@ -31,7 +31,7 @@ export default function App() {
         <span className="header-badge">Mastra</span>
       </header>
       <div className="app-body">
-        <DemoSelector demos={demoList} selectedId={selectedId} onSelect={setSelectedId} />
+        <DemoSelector demos={demoList} selectedId={selectedId} onSelect={(id) => { setSelectedId(id); reset() }} />
         <div className="app-main">
           <ReactFlowProvider>
             <div className="canvas-area">

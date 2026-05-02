@@ -108,5 +108,14 @@ export function useDemo() {
     }
   }, [handleEvent])
 
-  return { nodeStates, edgeStates, logs, result, running, runDemo }
+  const reset = useCallback(() => {
+    abortRef.current?.abort()
+    setNodeStates({})
+    setEdgeStates({})
+    setLogs([])
+    setResult(null)
+    setRunning(false)
+  }, [])
+
+  return { nodeStates, edgeStates, logs, result, running, runDemo, reset }
 }
