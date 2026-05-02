@@ -85,7 +85,7 @@ async function run(input: Record<string, string>, emit: EmitFn) {
 
   emit({ type: 'node:active', nodeId: 'supervisor' })
 
-  const result = await supervisor.generate(
+  const result = await supervisor.stream(
     [{ role: 'user', content: question }],
     {
       maxSteps: 10,
@@ -96,22 +96,20 @@ async function run(input: Record<string, string>, emit: EmitFn) {
         },
         onDelegationComplete: ({ primitiveId }) => {
           emit({ type: 'node:complete', nodeId: primitiveId })
-          emit({
-            type: 'edge:complete',
-            edgeId: `supervisor-to-${primitiveId}`,
-          })
+          emit({ type: 'edge:complete', edgeId: `supervisor-to-${primitiveId}` })
         },
       },
     },
   )
 
-  const text = await result.text
-  emit({
-    type: 'node:complete',
-    nodeId: 'supervisor',
-    output: { preview: text.slice(0, 200) },
-  })
-  return { report: text }
+  let fullText = ''
+  for await (const chunk of result.textStream) {
+    fullText += chunk
+    emit({ type: 'stream:chunk', nodeId: 'supervisor', text: chunk })
+  }
+
+  emit({ type: 'node:complete', nodeId: 'supervisor' })
+  return { report: fullText }
 }
 
 export const supervisorDemo: Demo = {
