@@ -70,6 +70,31 @@ body {
 .app-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .canvas-area { flex: 1; min-height: 0; position: relative; }
 
+/* ===== Resize Handle ===== */
+.resize-handle {
+  height: 6px;
+  cursor: row-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.resize-handle:hover { background: var(--bg-tertiary); }
+
+.resize-grip {
+  width: 36px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--border-strong);
+  transition: background 0.15s;
+}
+
+.resize-handle:hover .resize-grip { background: var(--text-tertiary); }
+
 /* ===== Sidebar ===== */
 .demo-selector {
   width: 260px;
@@ -158,9 +183,9 @@ body {
 /* ===== Bottom Panels ===== */
 .panels {
   display: flex;
-  height: 280px;
-  border-top: 1px solid var(--border);
+  flex-shrink: 0;
   background: var(--bg-secondary);
+  overflow: hidden;
 }
 
 .input-panel, .output-panel {
