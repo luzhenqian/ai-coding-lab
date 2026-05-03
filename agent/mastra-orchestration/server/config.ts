@@ -1,9 +1,9 @@
-import 'dotenv/config'
-import { createOpenAI } from '@ai-sdk/openai'
+import "dotenv/config";
+import { createOpenAI } from "@ai-sdk/openai";
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-})
+  baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
+});
 
-export const model = openai.chat(process.env.MODEL_ID || 'gpt-5.5')
+export const model = openai.chat(process.env.MODEL_ID || "gpt-5.5");
